@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -24,6 +25,9 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/verify', 'verify');
     Route::get('/verify', 'getVerify');
 });
+
+Route::post('group/join/{group}', [StudentController::class, 'store']);
+Route::post('group/leave/{group}', [StudentController::class, 'destroy']);
 
 Route::resources([
     'user' => UserController::class,

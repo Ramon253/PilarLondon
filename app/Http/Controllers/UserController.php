@@ -25,19 +25,18 @@ class UserController extends Controller
 
     public function index()
     {
-        $groups = null;
-        $isStudent = false;
-        if (auth()){
+        $response = ['groups' => Group::all()];
+        if (auth()) {
             $studentInfo = Student::isStudent(auth()->id());
-            if (isset($studentInfo)){
+            if (isset($studentInfo)) {
+                $response['isStudent'] = true;
+                $response['yourGroups'] = $studentInfo->getGroups();
+
             }
         }
-        return view('welcome',['groups' => $groups]);
+        return view('welcome', $response);
     }
 
-    /**
-     * @throws RandomException
-     */
     public function login(Request $request)
     {
         $identifier = self::getIdentifier($request);
@@ -61,7 +60,7 @@ class UserController extends Controller
             return redirect('/')->with('message', 'Logged in successfully');
         }
 
-        return back()->withErrors(['password' =>'Invalid username/email or password']);
+        return back()->withErrors(['password' => 'Invalid username/email or password']);
     }
 
     public function logout(Request $request)
@@ -79,7 +78,7 @@ class UserController extends Controller
         if (session()->missing('verificationCode')) {
             return redirect('/')->with('message', 'There it is no login attempt in this session');
         }
-        if (session('verificationCode') !== (int) $code) {
+        if (session('verificationCode') !== (int)$code) {
             return back()->with('message', 'Incorrect code');
         }
         auth()->login(session('user'));

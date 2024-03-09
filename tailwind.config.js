@@ -9,7 +9,11 @@ export default {
         "./resources/**/*.vue",
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                'nav-main' : '#6da1e9'
+            }
+        },
     },
     plugins: [],
 }

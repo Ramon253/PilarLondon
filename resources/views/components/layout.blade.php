@@ -9,10 +9,11 @@
     @vite('resources/css/app.css')
 </head>
 <body>
-<nav class="flex relative flex-col bg-slate-500 p-5 drop-shadow-2xl">
+<x-flash_message></x-flash_message>
+<nav class="flex relative flex-col bg-nav-main p-5 drop-shadow-2xl">
 
     <div class="flex justify-between  items-center">
-        <a href="/"><img class="size-24 aspect-square" src="{{asset('images/logo.png')}}" alt=""/></a>
+        <a href="/"><img class="size-36 aspect-square" src="{{asset('assets/logo.png')}}" alt=""/></a>
 
         @auth
             <details
@@ -21,7 +22,8 @@
                 <summary
                     class="flex p-2 pr-4  items-center list-none text-center text-white appearance-none cursor-pointer">
                     <span>
-                        <img class="aspect-square rounded-3xl w-16" src="{{ asset('images/default-profile.jpg')}}" alt="">
+                        <img class="aspect-square rounded-3xl w-16" src="{{ asset('images/default-profile.jpg')}}"
+                             alt="">
                     </span>
                     <span class="w-full font-bold">
                         {{auth()->user()->name }}
@@ -47,22 +49,29 @@
                 </ul>
             </details>
         @else
-            <ul>
+            <ul class="flex gap-2 ">
                 <li>
-                    <a href="/user/create" class="hover:text-red-50"><i class="fa-solid fa-user-plus"></i> Register</a>
+                    <a href="/user/create" class="p-4 border-4 border-white text-white transition hover:bg-white hover:text-black font-bold hover:scale-110 rounded">
+                        Register
+                    </a>
                 </li>
                 <li>
-                    <a href="/login" class="hover:text-red-50"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</a>
+                    <a href="/login" class="p-4 hover:bg-white hover:text-black border-4 border-white text-white rounded font-bold">
+                        Login
+                    </a>
                 </li>
-                @endauth
             </ul>
+        @endauth
     </div>
     {{--Navbar--}}
     <div class="w-full flex justify-center">
         <ul class="flex bg-slate-800 text-white shadow-2xl  items-center rounded h-10 w-96 justify-evenly space-x-10 justify-self-center self-end">
-            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out"><a href="">Tienda</a></li>
-            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out"><a href="/cart">Carrito</a></li>
-            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out"><a href="">Perfil</a></li>
+            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
+                <a href="">Tienda</a></li>
+            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
+                <a href="/cart">Carrito</a></li>
+            <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
+                <a href="">Perfil</a></li>
         </ul>
     </div>
 </nav>
