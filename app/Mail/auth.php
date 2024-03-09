@@ -28,7 +28,7 @@ class auth extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('admin@vost.com', 'VOST'),
+            from: new Address('admin@vost.com', 'Pilar london'),
             subject: 'Verification code'
         );
     }

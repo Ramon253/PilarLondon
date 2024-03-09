@@ -22,7 +22,7 @@ class StudentFactory extends Factory
             'surname' => fake()->name(),
             'profile_photo' => fake()->image(),
             'level' => fake()->randomElement(['A2', 'B1', 'B2', 'C1', 'C2']),
-            'birth_date' => fake()->dateTime(),
+            'birth_date' => fake()->date(),
             'user_id' => User::factory()
         ];
     }

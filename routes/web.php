@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -19,16 +20,28 @@ use App\Http\Controllers\UserController;
 Route::view('/login', 'user.login');
 
 Route::controller(UserController::class)->group(function () {
-    Route::get('/' , 'index');
+    Route::get('/', 'index');
     Route::post('/login', 'login')->name('login');
-    Route::post('/logout', 'logout');
+    Route::post('/logout', 'logout')->middleware('auth');
     Route::post('/verify', 'verify');
     Route::get('/verify', 'getVerify');
 });
 
-Route::post('group/join/{group}', [StudentController::class, 'store']);
-Route::post('group/leave/{group}', [StudentController::class, 'destroy']);
+Route::controller(StudentController::class)->middleware('auth')->group(function () {
+    Route::get('student', 'show');
+    Route::get('student/create', 'create');
+    Route::post('student', 'store' );
+    Route::get('student/edit', 'edit');
+    Route::put('student', 'update' );
+});
+
+Route::controller(GroupController::class)->middleware('auth')->group(function (){
+    Route::post('group/{group}', 'store');
+    Route::delete('group/{group}', 'destroy');
+    Route::get('group/{group}', 'show');
+});
+
 
 Route::resources([
-    'user' => UserController::class,
+    'user' => UserController::class
 ]);

@@ -9,6 +9,14 @@ class Student extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'full_name',
+        'surname',
+        'level',
+        'birth_date',
+        'user_id',
+        'profile_photo'
+    ] ;
     public function getGroups()
     {
         return self::query()

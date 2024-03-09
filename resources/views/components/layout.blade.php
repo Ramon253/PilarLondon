@@ -67,11 +67,11 @@
     <div class="w-full flex justify-center">
         <ul class="flex bg-slate-800 text-white shadow-2xl  items-center rounded h-10 w-96 justify-evenly space-x-10 justify-self-center self-end">
             <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
-                <a href="">Tienda</a></li>
+                <a href="/">Home</a></li>
             <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
-                <a href="/cart">Carrito</a></li>
+                <a href="/student">Perfil</a></li>
             <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
-                <a href="">Perfil</a></li>
+                <a href="/">Clases</a></li>
         </ul>
     </div>
 </nav>

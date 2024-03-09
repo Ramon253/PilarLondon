@@ -45,8 +45,8 @@ class UserController extends Controller
             $identifier['field'] => $identifier['validation'],
             'password' => 'required'
         ]);
-
-        if (auth()->attempt($formData)) {
+        $remmberMe = isset($request->remember_me);
+        if (auth()->attempt($formData, $remmberMe)) {
             $user = auth()->user();
             if (is_null($user->email_verified_at)) {
                 auth()->logout();

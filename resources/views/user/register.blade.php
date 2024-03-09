@@ -2,7 +2,6 @@
     <x-card >
         <header class="text-center">
             <h2 class="text-2xl font-bold uppercase mb-1">Register</h2>
-            <p class="mb-4">Create an account to post gigs</p>
         </header>
 
         <form method="POST" class="flex w-fit rounded p-20  justify-center flex-col bg-gray-300 space-y-10" action="/user">

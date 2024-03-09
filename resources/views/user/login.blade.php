@@ -3,7 +3,6 @@
         <div class="w-full flex flex-col items-center">
             <header class="text-center">
                 <h2 class="text-2xl font-bold uppercase mb-1">Login</h2>
-                <p class="mb-4">Log into your account to post gigs</p>
             </header>
 
             <form class="flex flex-col items-center space-y-10" method="POST" action="/login">
@@ -37,6 +36,9 @@
                     @error('password')
                     <p class="text-red-500 text-xs mt-1">{{$message}}</p>
                     @enderror
+                </div>
+                <div><label for="remember">Remember me</label>
+                    <input type="checkbox" id="remember" name="remember_me">
                 </div>
 
                 <div>

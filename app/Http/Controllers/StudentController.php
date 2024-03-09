@@ -12,66 +12,57 @@ use Illuminate\Http\Request;
 class StudentController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        return view('students.create');
     }
 
+    public function edit()
+    {
+        return view('students.edit');
+    }
     /**
      * Store a newly created resource in storage.
      */
-    public function store( Group $group)
+    public function store( Request $request)
+    {
+        $formData = $request->validate([
+            'full_name' => 'required',
+            'surname' => 'required',
+            'level' => 'required',
+            'birth_date' => 'required',
+        ]);
+        $formData['user_id'] = auth()->user();
+
+        Student::create($formData);
+
+        return redirect('/')->with('message', 'Welcome to pilarLondon');
+    }
+    public function update(Request $request)
+    {
+        $formData = $request->validate([
+            'full_name' => 'required',
+            'surname' => 'required',
+            'level' => 'required',
+            'birth_date' => 'required',
+        ]);
+        $formData['user_id'] = auth()->user();
+
+        Student::update($formData);
+
+        return redirect('/')->with('message', 'Welcome to pilarLondon');
+    }
+
+    public function show()
     {
         $student = Student::isStudent(auth()->id());
-        if (isset($student)){
-            Student_group::create([
-                'student_id' => $student->id,
-                'group_id' => $group->id
-            ]);
-            return redirect('/')->with(['message' => 'Joined to the class']);
-        }
-        return back()->withErrors(['invalid' => 'invalid request']);
+        if (!isset($student))
+            return redirect('/');
+        return view('students.show', [
+            'student' => $student
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Student $student)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Student $student)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Student $student)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Student $student)
-    {
-        //
-    }
 }

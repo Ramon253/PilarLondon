@@ -22,7 +22,7 @@ class PostFactory extends Factory
             'subject' => fake()->name(),
             'name' => fake()->name(),
             'description' =>fake()->text(),
-            'group_id' => Group::factory(),
+            'group_id' => (random_int(1,2) === 1)? Group::factory(): null,
             'teacher_id' => Teacher::factory()
         ];
     }
