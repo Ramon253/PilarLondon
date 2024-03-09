@@ -18,9 +18,9 @@ use App\Http\Controllers\UserController;
 
 
 Route::view('/login', 'user.login');
+Route::view('/', 'welcome');
 
 Route::controller(UserController::class)->group(function () {
-    Route::get('/', 'index');
     Route::post('/login', 'login')->name('login');
     Route::post('/logout', 'logout')->middleware('auth');
     Route::post('/verify', 'verify');
@@ -36,6 +36,7 @@ Route::controller(StudentController::class)->middleware('auth')->group(function 
 });
 
 Route::controller(GroupController::class)->middleware('auth')->group(function (){
+    Route::get('group', 'index');
     Route::post('group/{group}', 'store');
     Route::delete('group/{group}', 'destroy');
     Route::get('group/{group}', 'show');

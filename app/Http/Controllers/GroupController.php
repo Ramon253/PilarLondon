@@ -16,7 +16,14 @@ class GroupController extends Controller
      */
     public function index()
     {
-        //
+        $response = ['groups' => Group::all()];
+        $studentInfo = Student::isStudent(auth()->id());
+        if (isset($studentInfo)) {
+            $response['isStudent'] = true;
+            $response['yourGroups'] = $studentInfo->getGroups();
+            $response['groups'] = $response['groups']->diff($response['yourGroups']);
+        }
+        return view('group.index', $response);
     }
 
     /**
@@ -30,17 +37,17 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store( Group $group)
+    public function store(Group $group)
     {
         $student = Student::isStudent(auth()->id());
-        if (isset($student)){
+        if (isset($student)) {
             Student_group::create([
                 'student_id' => $student->id,
                 'group_id' => $group->id
             ]);
-            return redirect('/')->with(['message' => 'Joined to the class']);
+            return redirect('/group')->with(['message' => 'Joined to the class']);
         }
-        return back()->withErrors(['invalid' => 'invalid request']);
+        return redirect('/student/create')->withErrors(['invalid' => 'You need to be a student to join the class']);
     }
 
     /**
@@ -49,16 +56,16 @@ class GroupController extends Controller
     public function show(Group $group)
     {
         $student = Student::isStudent(auth()->id());
-        if (!isset($student)){
+        if (!isset($student)) {
             return back()->withErrors(['invalid' => 'invalid request']);
         }
         $response = [
-          'group' => $group,
-          'posts' => Post::query()->where('group_id' , $group->id)->get()
+            'group' => $group,
+            'posts' => Post::query()->where('group_id', $group->id)->get()
         ];
 
 
-        return view('group.show', $response );
+        return view('group.show', $response);
     }
 
     /**
@@ -80,10 +87,11 @@ class GroupController extends Controller
     public function destroy(Group $group)
     {
         $student = Student::isStudent(auth()->id());
-        if (isset($student)){
-            Student_group::query()->where('student_id', $student->id)->where('group_id' , $group->id)->delete();
-            return redirect('/')->with(['message' => 'Leaved to the class']);
+        if (isset($student)) {
+            Student_group::query()->where('student_id', $student->id)->where('group_id', $group->id)->delete();
+            return redirect('/group')->with(['message' => 'You have leaved the class successfully']);
         }
         return back()->withErrors(['invalid' => 'invalid request']);
 
-    }}
+    }
+}

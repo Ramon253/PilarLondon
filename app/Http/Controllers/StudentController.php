@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student_group;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -21,7 +22,11 @@ class StudentController extends Controller
 
     public function edit()
     {
-        return view('students.edit');
+        $student = Student::isStudent(auth()->id());
+        if (!isset($student)) {
+            return redirect('/student/create')->withErrors(['invalid' => 'you must be an student to edit one']);
+        }
+        return view('students.edit', ['student' => $student]);
     }
     /**
      * Store a newly created resource in storage.
@@ -32,10 +37,10 @@ class StudentController extends Controller
             'full_name' => 'required',
             'surname' => 'required',
             'level' => 'required',
-            'birth_date' => 'required',
+            'birth_date' => ['required', 'date'],
         ]);
-        $formData['user_id'] = auth()->user();
-
+        $formData['user_id'] = auth()->id();
+        $formData['birth_date'] = Carbon::parse($formData['birth_date']);
         Student::create($formData);
 
         return redirect('/')->with('message', 'Welcome to pilarLondon');
@@ -48,14 +53,13 @@ class StudentController extends Controller
             'level' => 'required',
             'birth_date' => 'required',
         ]);
-        $formData['user_id'] = auth()->user();
-
-        Student::update($formData);
-
-        return redirect('/')->with('message', 'Welcome to pilarLondon');
+        $student = Student::query()->where('user_id' , \auth()->id())->first();
+        $student->update($formData);
+        return redirect('/student')->with('message', 'Welcome to pilarLondon');
     }
 
     public function show()
+
     {
         $student = Student::isStudent(auth()->id());
         if (!isset($student))

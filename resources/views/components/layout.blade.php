@@ -71,7 +71,7 @@
             <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
                 <a href="/student">Perfil</a></li>
             <li class="flex rounded items-center h-2/3 p-2 hover:scale-110 hover:-translate-y-1 transition ease-in-out">
-                <a href="/">Clases</a></li>
+                <a href="/group">Clases</a></li>
         </ul>
     </div>
 </nav>

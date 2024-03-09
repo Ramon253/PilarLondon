@@ -10,7 +10,7 @@
                 @method('put')
                 <div class="flex flex-col space-y-2">
                     <label for="full_name" class="text-lg mb-2">Nombre completo</label>
-                    <input type="text" id="full_name" class="border border-gray-200 rounded p-2 w-full" name="full_name"/>
+                    <input type="text" value="{{$student->full_name}}" id="full_name" class="border border-gray-200 rounded p-2 w-full" name="full_name"/>
 
                     @error('full_name')
                     <p class="text-red-500 text-xs mt-1">{{$message}}</p>
@@ -19,7 +19,7 @@
                 <div class="flex flex-col space-y-2">
                     <label for="surname" class="text-lg mb-2">Apellidos</label>
                     <input type="text" id="surname" class="border border-gray-200 rounded p-2 w-full" name="surname"
-                           value="{{old('surname')}}"/>
+                           value="{{$student->surname}}"/>
 
                     @error('surname')
                     <p class="text-red-500 text-xs mt-1">{{$message}}</p>
@@ -31,12 +31,10 @@
                         Nivel de ingles
                     </label>
                     <select name="level"  class="border border-gray-200 rounded p-2 w-full" id="level">
-                        <option value="A1">A1</option>
-                        <option value="A2">A2</option>
-                        <option value="B1">B1</option>
-                        <option value="B2">B2</option>
-                        <option value="C1">C1</option>
-                        <option value="C2">C2</option>
+                        @php($options = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'])
+                        @foreach($options as $level)
+                            <option @if($level === $student->$level) selected @endif value="{{$level}}">{{$level}}</option>
+                        @endforeach
                     </select>
 
                     @error('level')
@@ -49,7 +47,7 @@
                     </label>
                     <input id='birth_date' type='date' class="border border-gray-200 rounded p-2 w-full"
                            name='birth_date'
-                           value="{{old('birth_date')}}"/>
+                           value="{{$student->birth_date}}"/>
                     @error('birth_date')
                     <p class="text-red-500 text-xs mt-1">{{$message}}</p>
                     @enderror

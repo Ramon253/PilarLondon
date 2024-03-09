@@ -23,19 +23,7 @@ class UserController extends Controller
         return view('user.register');
     }
 
-    public function index()
-    {
-        $response = ['groups' => Group::all()];
-        if (auth()) {
-            $studentInfo = Student::isStudent(auth()->id());
-            if (isset($studentInfo)) {
-                $response['isStudent'] = true;
-                $response['yourGroups'] = $studentInfo->getGroups();
 
-            }
-        }
-        return view('welcome', $response);
-    }
 
     public function login(Request $request)
     {
