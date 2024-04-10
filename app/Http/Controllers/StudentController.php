@@ -64,6 +64,7 @@ class StudentController extends Controller
         $student = Student::isStudent(auth()->id());
         if (!isset($student))
             return redirect('/');
+        
         return view('students.show', [
             'student' => $student
         ]);

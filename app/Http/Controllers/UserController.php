@@ -27,6 +27,7 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
+        return response()->json(['Hola' =>'hola']);
         $identifier = self::getIdentifier($request);
 
         $formData = $request->validate([
@@ -34,8 +35,11 @@ class UserController extends Controller
             'password' => 'required'
         ]);
         $remmberMe = isset($request->remember_me);
+
+
         if (auth()->attempt($formData, $remmberMe)) {
             $user = auth()->user();
+            /*
             if (is_null($user->email_verified_at)) {
                 auth()->logout();
                 $request->session()->invalidate();
@@ -43,21 +47,26 @@ class UserController extends Controller
 
                 self::sendMail($user);
                 return redirect('/verify');
-            }
+            }*/
             $request->session()->regenerate();
-            return redirect('/')->with('message', 'Logged in successfully');
+            $token = $request->user()->createToken('nosejeje');
+            return response()->json([
+                'user' => $user,
+                'token' => $token->plainTextToken
+            ]); 
         }
 
-        return back()->withErrors(['password' => 'Invalid username/email or password']);
+        return response()->json(['auth' => 'Incorrect credentials']);
     }
 
     public function logout(Request $request)
     {
         auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        auth()->user();
+        //$request->session()->invalidate();
+        //$request->session()->regenerateToken();
 
-        return redirect('/')->with('message', 'You have been logged out!');
+        return response()->json(['message' => 'Logged out successfully']);
     }
 
     public function verify(Request $request)
@@ -113,39 +122,7 @@ class UserController extends Controller
         $formFields['password'] = password_hash($formFields['password'], PASSWORD_DEFAULT);
         $user = User::create($formFields);
 
-        return redirect('/login')->with('message', 'usuario creado con exito');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Users $users)
-    {
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Users $users)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Users $users)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Users $users)
-    {
-        //
+        return response()->json(['message' => 'user created successfully']);
     }
 
     private static function getIdentifier(Request $request)

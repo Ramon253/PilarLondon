@@ -18,7 +18,6 @@ return new class extends Migration
             $table->longText('description');
 
             $table->foreignId('group_id')->nullable()->constrained();
-            $table->foreignId('teacher_id')->constrained();
             $table->timestamps();
         });
     }

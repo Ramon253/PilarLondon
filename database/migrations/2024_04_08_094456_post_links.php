@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table){
+        Schema::create('post_links', function (Blueprint $table) {
             $table->id();
-            $table->string('banner');
-            $table->string('level');
-            $table->integer('capacity')->unsigned();
-            $table->time('lessons_time');
-            $table->string('lesson_days');
-            $table->foreignId('teacher_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('link');
+            $table->string('link_name');
+
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

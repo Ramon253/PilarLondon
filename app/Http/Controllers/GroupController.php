@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assignment;
 use App\Models\Post;
 use App\Models\Post_comment;
-use Illuminate\Http\Request;
 use App\Models\Student_group;
 use App\Models\Group;
 use App\Models\Student;
@@ -16,18 +16,18 @@ class GroupController extends Controller
      */
     public function index()
     {
-        $response = ['groups' => Group::all()];
-        $studentInfo = Student::isStudent(auth()->id());
-        if (isset($studentInfo)) {
-            $response['isStudent'] = true;
-            $response['yourGroups'] = $studentInfo->getGroups();
-            $response['groups'] = $response['groups']->diff($response['yourGroups']);
+        $groups =  Group::all();
+        $response = [];
+        foreach($groups as $group){
+            $stundentsNumber = Student_group::all()->where('group_id', $group->id)->count();
+            $group['studentNumber'] = $stundentsNumber;
+            $response[] = $group;
         }
-        return view('group.index', $response);
+        return response()->json($response);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * get all students from a group
      */
     public function create()
     {
@@ -55,17 +55,13 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        $student = Student::isStudent(auth()->id());
-        if (!isset($student)) {
-            return back()->withErrors(['invalid' => 'invalid request']);
-        }
         $response = [
             'group' => $group,
-            'posts' => Post::query()->where('group_id', $group->id)->get()
+            'posts' => Post::all()->where('group_id', $group->id),
+            'assignments' => Assignment::all()->where('group_id', $group->id),
+            'students' => $group->getStudents()
         ];
-
-
-        return view('group.show', $response);
+        return response()->json($response);
     }
 
     /**

@@ -20,9 +20,10 @@ class GroupFactory extends Factory
         return [
             'banner' => fake()->image(),
             'level' => fake()->randomElement(['A2', 'B1', 'B2', 'C1', 'C2']),
+            'capacity' => fake()->numberBetween(10,20),
             'lessons_time' => fake()->time(),
             'lesson_days' => fake()->randomElement(['l-m', 'm-j', 'v']),
-            'teacher_id'=> Teacher::factory()
+            'teacher_id'=> '01'
         ];
     }
 }

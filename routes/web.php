@@ -20,11 +20,12 @@ use App\Http\Controllers\UserController;
 Route::view('/login', 'user.login');
 Route::view('/', 'welcome');
 
+
 Route::controller(UserController::class)->group(function () {
     Route::post('/login', 'login')->name('login');
     Route::post('/logout', 'logout')->middleware('auth');
     Route::post('/verify', 'verify');
-    Route::get('/verify', 'getVerify');
+    Route::get('/verify', 'getVerify')->middleware('auth');
 });
 
 Route::controller(StudentController::class)->middleware('auth')->group(function () {

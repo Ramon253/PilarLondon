@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('group_assignments', function (Blueprint $table){
-            $table->foreignId('group_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('assignment_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+        Schema::create('assignment_links', function (Blueprint $table) {
+            $table->id();
+            $table->string('link');
+            $table->string('link_name');
+
+            $table->foreignId('assignment_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

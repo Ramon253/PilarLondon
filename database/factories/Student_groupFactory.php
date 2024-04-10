@@ -20,7 +20,7 @@ class Student_groupFactory extends Factory
     {
         return [
             'student_id' => Student::factory(),
-            'group_id' => Group::factory()
+            'group_id' => fake()->numberBetween(1,10)
         ];
     }
 }
