@@ -27,7 +27,7 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        return response()->json(['Hola' =>'hola']);
+
         $identifier = self::getIdentifier($request);
 
         $formData = $request->validate([
@@ -38,7 +38,7 @@ class UserController extends Controller
 
 
         if (auth()->attempt($formData, $remmberMe)) {
-            $user = auth()->user();
+
             /*
             if (is_null($user->email_verified_at)) {
                 auth()->logout();
@@ -48,11 +48,10 @@ class UserController extends Controller
                 self::sendMail($user);
                 return redirect('/verify');
             }*/
-            $request->session()->regenerate();
-            $token = $request->user()->createToken('nosejeje');
+            //request->session()->regenerate();
+
             return response()->json([
-                'user' => $user,
-                'token' => $token->plainTextToken
+                'user' => $request->user(),
             ]); 
         }
 
