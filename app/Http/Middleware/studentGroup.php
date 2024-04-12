@@ -10,6 +10,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use function PHPUnit\Framework\isNull;
+
 class studentGroup
 
 {
@@ -22,15 +24,20 @@ class studentGroup
     public function handle(Request $request, Closure $next): Response
     {
         $student = Student::isStudent(auth()->id());
-        if(!isset($student)){
+        if (!isset($student)) {
             return response()->json(['error' => 'You need to be an student to access that']);
         }
 
-        $group = $request->route('group');
-        $groups = Student_group::all()->where('student_id', $student->id)->where('group_id' , $group->id)->first();
+        $group = (null !== $request->route('group')) ? $request->route('group')->id : $request->route('post')->group_id;
+
+        if($group === null)
+            return $next($request);
+        
+        
+        $groups = Student_group::all()->where('student_id', $student->id)->where('group_id', $group)->first();
 
 
-        if(!isset($groups)){
+        if (!isset($groups)) {
             return response()->json(['error' => 'You must be part of the class you are trying to access']);
         }
 

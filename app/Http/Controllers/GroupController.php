@@ -8,6 +8,8 @@ use App\Models\Post_comment;
 use App\Models\Student_group;
 use App\Models\Group;
 use App\Models\Student;
+use App\Models\Post_file;
+use App\Models\Post_links;
 
 class GroupController extends Controller
 {
@@ -18,7 +20,7 @@ class GroupController extends Controller
     {
         $groups =  Group::all();
         $response = [];
-        foreach($groups as $group){
+        foreach ($groups as $group) {
             $stundentsNumber = Student_group::all()->where('group_id', $group->id)->count();
             $group['studentNumber'] = $stundentsNumber;
             $response[] = $group;
@@ -26,38 +28,19 @@ class GroupController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * get all students from a group
-     */
-    public function create()
-    {
-        return view('student.create');
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Group $group)
-    {
-        $student = Student::isStudent(auth()->id());
-        if (isset($student)) {
-            Student_group::create([
-                'student_id' => $student->id,
-                'group_id' => $group->id
-            ]);
-            return redirect('/group')->with(['message' => 'Joined to the class']);
-        }
-        return redirect('/student/create')->withErrors(['invalid' => 'You need to be a student to join the class']);
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Group $group)
     {
+        $posts = Post::all()->where('group_id', $group->id);
+
+        foreach ($posts as $id => $post) {
+            $posts[$id]['links'] = Post_links::all()->where('post_id', $post->id);
+            $posts[$id]['files'] = Post_file::all()->where('post_id', $post->id);
+        }
+
         $response = [
             'group' => $group,
-            'posts' => Post::all()->where('group_id', $group->id),
+            'posts' => $post,
             'assignments' => Assignment::all()->where('group_id', $group->id),
             'students' => $group->getStudents()
         ];
@@ -88,6 +71,5 @@ class GroupController extends Controller
             return redirect('/group')->with(['message' => 'You have leaved the class successfully']);
         }
         return back()->withErrors(['invalid' => 'invalid request']);
-
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\auth;
+use App\Mail\auth as MailAuth;
 use App\Models\Group;
 use App\Models\Student;
 use App\Models\Student_group;
@@ -10,20 +10,37 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\Auth;
+use PHPUnit\Framework\MockObject\Builder\Stub;
 
 class UserController extends Controller
 {
-    /**
-     *
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('user.register');
+
+    public function login_token(Request $request) {
+        $identifier = self::getIdentifier($request);
+
+        $formData = $request->validate([
+            $identifier['field'] => $identifier['validation'],
+            'password' => 'required'
+        ]);
+        $remmberMe = isset($request->remember_me);
+
+        if (auth()->attempt($formData, $remmberMe)) {
+            return response()->json([
+                'user' => Auth::user()->createToken('hola')->plainTextToken
+            ]); 
+        }
+
+        return response()->json(['auth' => 'Incorrect credentials']);
     }
 
-
+    public function  dashboard() {
+        $student = Student::isStudent(auth()->id());
+        $groups = $student->getGroups();
+        return response()->json([
+            'student' => $student
+        ]);
+    }
 
     public function login(Request $request)
     {
@@ -49,7 +66,7 @@ class UserController extends Controller
                 return redirect('/verify');
             }*/
             //request->session()->regenerate();
-
+            session()->regenerate();
             return response()->json([
                 'user' => $request->user(),
             ]); 
@@ -58,12 +75,24 @@ class UserController extends Controller
         return response()->json(['auth' => 'Incorrect credentials']);
     }
 
+    public function show() {
+        $student = Student::isStudent(auth()->id());
+        $response = [
+            "user" => auth()->user()
+        ];
+
+        if (isset($student))
+            $response['student'] = $student;
+
+        return response()->json($response);
+    }
+
     public function logout(Request $request)
     {
         auth()->logout();
         auth()->user();
-        //$request->session()->invalidate();
-        //$request->session()->regenerateToken();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Logged out successfully']);
     }
@@ -96,15 +125,7 @@ class UserController extends Controller
         session(['verificationCode' => $code]);
         session(['user' => $user]);
 
-        Mail::to($user->email)->send(new auth($code));
-    }
-
-    public function getVerify()
-    {
-        if (session()->missing('verificationCode')) {
-            return redirect('/')->with('message', 'No has figura ningun intento de verificacion');
-        }
-        return view('user.verify');
+        Mail::to($user->email)->send(new MailAuth($code));
     }
 
 

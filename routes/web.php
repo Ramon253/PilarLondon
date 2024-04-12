@@ -15,7 +15,7 @@ use App\Http\Controllers\UserController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+/*
 
 Route::view('/login', 'user.login');
 Route::view('/', 'welcome');
@@ -47,3 +47,4 @@ Route::controller(GroupController::class)->middleware('auth')->group(function ()
 Route::resources([
     'user' => UserController::class
 ]);
+*/

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->unsignedBigInteger('post_id');
 
-            $table->foreign('user_id')->references('id')->on('students')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('parent_id')->references('id')->on('post_comments')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('post_id')->references('id')->on('posts')->cascadeOnUpdate()->cascadeOnDelete();
 
