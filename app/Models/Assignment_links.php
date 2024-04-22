@@ -5,14 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Assignment extends Model
+class Assignment_links extends Model
 {
     use HasFactory;
-
     protected $fillable = [
-        'name',
-        'dead_line',
-        'description',
-        'group_id'
+        'link',
+        'link_name'
     ];
 }

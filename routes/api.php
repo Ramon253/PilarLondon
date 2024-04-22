@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\student;
 use App\Http\Middleware\studentGroup;
 use App\Mail\auth;
+use App\Models\Assignment;
 use App\Models\Group;
 use App\Models\Student_group;
 use Illuminate\Http\Request;
@@ -42,12 +45,30 @@ Route::controller(GroupController::class)->group(function(){
 Route::controller(PostController::class)->group(function ()  {
 
    Route::get('posts', 'index');
-   Route::get('post/{post}', 'show')->middleware(['studentGroup']);
-   Route::get('post/{post}/comments', 'getComments')->middleware(['studentGroup']);
-   Route::get('post/{post}/file/{file}', 'getFile')->middleware('studentGroup');
+   Route::get('post/{post}', 'show');
+   Route::get('post/{post}/comments', 'getComments');
+   Route::get('post/{post}/file/{file}', 'getFile');
 
    Route::post('post', 'store')->middleware();
 
+   Route::put('post/{post}', 'update');
+   Route::delete('post/{post}', 'destroy');
+
+   Route::post('post/{post}/file', 'storeFile');
+   Route::post('post/{post}/link', 'storeLink');
+
+   Route::delete('post/file/{file}','destroyFile');
+   Route::delete('post/link/{link}','destroyLink');
+
 })->middleware(['auth:sanctum']);
+
+Route::controller(AssignmentController::class)->group(function(){
+    Route::get('assignments', 'index')->middleware('student');
+});
+
+Route::controller(ResponseController::class)->group(function () {
+    Route::get('assignment/{assignment}/response', 'index');
+});
+
 
 

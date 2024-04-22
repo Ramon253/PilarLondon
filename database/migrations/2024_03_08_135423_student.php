@@ -18,7 +18,9 @@ return new class extends Migration {
             $table->string('surname');
             $table->string('level');
             $table->date('birth_date');
+            $table->unsignedBigInteger('parent_id')->nullable();
 
+            $table->foreign('parent_id')->references('id')->on('users');
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

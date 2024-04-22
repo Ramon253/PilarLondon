@@ -10,6 +10,7 @@ use App\Models\Post_links;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use PhpParser\Node\Expr\Cast\String_;
 
 use function Pest\Laravel\json;
 
@@ -24,7 +25,8 @@ class PostController extends Controller
     }
 
 
-    public function getComments(Post $post)  {
+    public function getComments(Post $post)
+    {
         return response()->json([
             'comments' => $post->getComments()
         ]);
@@ -38,10 +40,10 @@ class PostController extends Controller
             'name' => ['required', 'string'],
             'subject' => ['required', 'string'],
             'description' => ['string'],
-            'group_id' => ['required',Rule::exists('groups', 'id')]
+            'group_id' => ['required', Rule::exists('groups', 'id')]
         ]);
 
-        /*
+        
         $post = Post::create($post);
 
         if($request->has('links')){
@@ -57,13 +59,11 @@ class PostController extends Controller
             }    
 
         }
-        */
+        
         $num = 0;
-        if($request->hasFile('files')){
-            return response($request->file('files')[2]);
-            foreach($request->file('files') as $file){
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
             }
-            return response()->json($num);
         }
 
         return response()->json(['message' => 'post created successfully']);
@@ -75,7 +75,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post['links'] = Post_links::all()->where('post_id', $post->id);
-        $post['files'] = Post_file::all()->where('post_id' , $post->id);
+        $post['files'] = Post_file::all()->where('post_id', $post->id);
         $post['comments'] = $post->getComments();
 
         return response()->json($post);
@@ -86,7 +86,13 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $postData = $request->validate([
+            'name' => ['string'],
+            'subject' => ['string'],
+            'description' => ['string'],
+        ]);
+        $post->update($postData);
+        return response()->json(['success' => 'post successfully updated']);
     }
 
     /**
@@ -94,6 +100,37 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return response()->json(['success' => 'post successfully deleted']);
+    }
+
+    public function destroyFile(Request $request, string $file) {
+        Post_file::destroy($file);
+        return response()->json(['success' => 'File deleted successfully']);
+    }
+
+    public function destroyLink(Request $request, string $link) {
+        Post_links::destroy($link);
+        return response()->json(['success' => 'File deleted successfully']);
+    }
+
+
+
+    public function storeFile(Request $request, Post $post){
+        
+    }
+
+    public function storeLink(Request $request, Post $post){
+        $links = $request->validate([
+            "links.*.link" => ['required', 'string'],
+            "links.*.link_name" => ['required', 'string']
+        ]);
+
+        foreach($links['links'] as $link){   
+            $link['post_id'] = $post->id;
+            Post_links::create($link);
+        }    
+
+        return response()->json(['success' => 'Links added successfully']);
     }
 }
