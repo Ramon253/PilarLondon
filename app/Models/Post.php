@@ -12,7 +12,8 @@ class Post extends Model
     protected $fillable = [
         'name',
         'subject',
-        'description'
+        'description',
+        'group_id'
     ];
 
     public function getComments()

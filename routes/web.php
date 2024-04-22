@@ -16,8 +16,10 @@ use App\Http\Controllers\UserController;
 |
 */
 /*
-
-Route::view('/login', 'user.login');
+ *
+ */
+Route::view('/', 'testController');
+/*Route::view('/login', 'user.login');
 Route::view('/', 'welcome');
 
 
@@ -46,5 +48,5 @@ Route::controller(GroupController::class)->middleware('auth')->group(function ()
 
 Route::resources([
     'user' => UserController::class
-]);
-*/
+]);*/
+

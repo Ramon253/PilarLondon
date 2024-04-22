@@ -5,24 +5,18 @@
                 <h2 class="text-2xl font-bold uppercase mb-1">Login</h2>
             </header>
 
-            <form class="flex flex-col items-center space-y-10" method="POST" action="/login">
+            <form class="flex flex-col items-center space-y-10" method="POST" action="/api/login">
                 @csrf
                 <div class="flex flex-col space-y-2">
                     <label for="email" class="text-lg mb-2">Email</label>
                     <input type="email" id="email" class="border border-gray-200 rounded p-2 w-full" name="email"/>
 
-                    @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{$message}}</p>
-                    @enderror
                 </div>
                 <div class="flex flex-col space-y-2">
                     <label for="name" class="text-lg mb-2">Name</label>
                     <input type="text" id="name" class="border border-gray-200 rounded p-2 w-full" name="name"
                            value="{{old('name')}}"/>
 
-                    @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{$message}}</p>
-                    @enderror
                 </div>
 
                 <div class="flex flex-col space-y-2">
@@ -33,9 +27,6 @@
                            name="password"
                            value="{{old('password')}}"/>
 
-                    @error('password')
-                    <p class="text-red-500 text-xs mt-1">{{$message}}</p>
-                    @enderror
                 </div>
                 <div><label for="remember">Remember me</label>
                     <input type="checkbox" id="remember" name="remember_me">

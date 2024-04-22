@@ -28,7 +28,7 @@ class UserController extends Controller
         if (auth()->attempt($formData, $remmberMe)) {
             return response()->json([
                 'user' => Auth::user()->createToken('hola')->plainTextToken
-            ]); 
+            ]);
         }
 
         return response()->json(['auth' => 'Incorrect credentials']);
@@ -69,7 +69,7 @@ class UserController extends Controller
             session()->regenerate();
             return response()->json([
                 'user' => $request->user(),
-            ]); 
+            ]);
         }
 
         return response()->json(['auth' => 'Incorrect credentials']);
@@ -137,9 +137,9 @@ class UserController extends Controller
         $formFields = $request->validate([
             'name' => ['required', Rule::unique('users', 'name')],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'password' => 'required|confirmed|min:6'
+            'password' => 'required|confirmed|min:8'
         ]);
-        $formFields['password'] = password_hash($formFields['password'], PASSWORD_DEFAULT);
+
         $user = User::create($formFields);
 
         return response()->json(['message' => 'user created successfully']);

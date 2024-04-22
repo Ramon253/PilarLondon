@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\auth;
 use App\Models\Assignment;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
@@ -16,8 +17,8 @@ class AssignmentController extends Controller
      */
     public function index(Request $request)
     {
-        $groups = Student_group::where('student_id', $request['student']->id)->distinct()->pluck('group_id');
-        $assignments = Assignment::all()->where('group_id', $groups);
+        $groups = Student_group::all()->where('student_id', $request['student']->id)->pluck('group_id');
+        $assignments = Assignment::all()->whereIn('group_id', $groups);
         return response()->json($assignments);
     }
 
@@ -33,7 +34,7 @@ class AssignmentController extends Controller
             'group_id' => ['required', Rule::exists('groups', 'id')]
         ]);
 
-        
+
         $assignment = Assignment::create($assignment);
 
         if($request->has('links')){
@@ -43,10 +44,10 @@ class AssignmentController extends Controller
                 "links.*.link_name" => ['required', 'string']
             ]);
 
-            foreach($links['links'] as $link){   
+            foreach($links['links'] as $link){
                 $link['assignment_id'] = $assignment->id;
                 Assignment::create($link);
-            }    
+            }
 
         }
 

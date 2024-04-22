@@ -1,0 +1,30 @@
+POST http://localhost:8000/api/post
+Accept: application/json
+Content-Type: application/json;
+Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8;
+
+{
+    "name": "hola",
+    "subject": "prueba",
+    "description": "Hola ue tal estan ustedes",
+    "group_id": 1
+}
+###
+
+
+GET http://localhost:8000/api/post/12
+Accept: application/json
+Content-Type: application/json
+Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8
+
+###
+POST http://localhost:8000/api/user
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name" : "gerunio",
+    "email" : "abichiela",
+    "password" : "123456789",
+    "password_confirmation" : "123456789"
+}

@@ -30,10 +30,10 @@ class studentGroup
 
         $group = (null !== $request->route('group')) ? $request->route('group')->id : $request->route('post')->group_id;
 
-        if($group === null)
+        if($group === null) {
             return $next($request);
-        
-        
+        }
+
         $groups = Student_group::all()->where('student_id', $student->id)->where('group_id', $group)->first();
 
 

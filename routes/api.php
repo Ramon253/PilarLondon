@@ -39,17 +39,18 @@ Route::controller(UserController::class)->group(function(){
 
 Route::controller(GroupController::class)->group(function(){
     Route::get('groups', 'index')->middleware(['auth:sanctum']);
-    Route::get('group/{group}',  'show')->middleware(['auth:sanctum', 'studentGroup:group']); 
+    Route::get('group/{group}',  'show')->middleware(['auth:sanctum', 'studentGroup:group']);
 });
 
 Route::controller(PostController::class)->group(function ()  {
-
+   Route::post('post', 'store');
    Route::get('posts', 'index');
    Route::get('post/{post}', 'show');
    Route::get('post/{post}/comments', 'getComments');
    Route::get('post/{post}/file/{file}', 'getFile');
+   Route::get('post/{post}/file', 'getFiles');
 
-   Route::post('post', 'store')->middleware();
+
 
    Route::put('post/{post}', 'update');
    Route::delete('post/{post}', 'destroy');

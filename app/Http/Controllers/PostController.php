@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\Cast\String_;
+use Illuminate\Support\Str;
 
 use function Pest\Laravel\json;
 
@@ -43,7 +44,6 @@ class PostController extends Controller
             'group_id' => ['required', Rule::exists('groups', 'id')]
         ]);
 
-        
         $post = Post::create($post);
 
         if($request->has('links')){
@@ -53,24 +53,47 @@ class PostController extends Controller
                 "links.*.link_name" => ['required', 'string']
             ]);
 
-            foreach($links['links'] as $link){   
+            foreach($links['links'] as $link){
                 $link['post_id'] = $post->id;
                 Post_links::create($link);
-            }    
+            }
 
         }
-        
-        $num = 0;
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
+
+        if($request->hasFile('files')){
+            foreach($request->file('files') as $file){
+                $mimeType = $file->getClientMimeType();
+                $name = $file->getClientOriginalName();
+
+                if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf')) {
+                    return response()->json(['error' => 'Tipo de archivo no valido']);
+                }
+
+                $path = $file->store('posts/'.$post->id);
+
+                Post_file::create([
+                    'post_id' => $post->id,
+                    'file_name' => $name,
+                    'file_path' => $path
+                ]);
             }
+
         }
 
         return response()->json(['message' => 'post created successfully']);
     }
 
-    /**
-     * Display the specified resource.
+    public function getFile(Post $post, string $file ){
+
+        $file = Post_file::find($file);
+
+        if($file === null){
+            return response()->json(['message' => 'file not found']);
+        }
+        return Storage::download($file->file_path, $file->file_name);
+    }
+
+     /* Display the specified resource.
      */
     public function show(Post $post)
     {
@@ -117,7 +140,7 @@ class PostController extends Controller
 
 
     public function storeFile(Request $request, Post $post){
-        
+
     }
 
     public function storeLink(Request $request, Post $post){
@@ -126,10 +149,10 @@ class PostController extends Controller
             "links.*.link_name" => ['required', 'string']
         ]);
 
-        foreach($links['links'] as $link){   
+        foreach($links['links'] as $link){
             $link['post_id'] = $post->id;
             Post_links::create($link);
-        }    
+        }
 
         return response()->json(['success' => 'Links added successfully']);
     }
