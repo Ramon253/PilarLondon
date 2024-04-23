@@ -10,6 +10,8 @@ use App\Models\Group;
 use App\Models\Student;
 use App\Models\Post_file;
 use App\Models\Post_links;
+use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Redis;
 
 class GroupController extends Controller
 {
@@ -47,6 +49,15 @@ class GroupController extends Controller
         return response()->json($response);
     }
 
+
+    public function getPosts(string $group)
+    {
+        $posts = Post::all()->where('group_id', $group);
+        return response()->json([
+            'success' => 'success',
+            'posts' => $posts
+        ]);
+    }
     /**
      * Show the form for editing the specified resource.
      */

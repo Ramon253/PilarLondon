@@ -39,7 +39,8 @@ Route::controller(UserController::class)->group(function(){
 
 Route::controller(GroupController::class)->group(function(){
     Route::get('groups', 'index')->middleware(['auth:sanctum']);
-    Route::get('group/{group}',  'show')->middleware(['auth:sanctum', 'studentGroup:group']);
+    Route::get('group/{group}',  'show');
+    Route::get('group/{group}/posts', 'getPosts');
 });
 
 Route::controller(PostController::class)->group(function ()  {

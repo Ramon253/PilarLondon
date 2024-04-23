@@ -7,13 +7,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Post_comment;
 use App\Models\Post_file;
 use App\Models\Post_links;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\Cast\String_;
 use Illuminate\Support\Str;
 
 use function Pest\Laravel\json;
+use function PHPUnit\Framework\returnSelf;
 
 class PostController extends Controller
 {
@@ -123,12 +126,19 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $filesPaths = Post_file::all()->where('post_id' , $post->id);
+
+        foreach($filesPaths as $filePath){
+            Storage::delete($filePath->file_path);
+        }
         $post->delete();
         return response()->json(['success' => 'post successfully deleted']);
     }
 
     public function destroyFile(Request $request, string $file) {
-        Post_file::destroy($file);
+        $path =Post_file::findOrFail($file);
+        Storage::delete($path->file_path);
+        Post_file::destroy($path);
         return response()->json(['success' => 'File deleted successfully']);
     }
 
@@ -140,7 +150,29 @@ class PostController extends Controller
 
 
     public function storeFile(Request $request, Post $post){
+        if($request->hasFile('files')){
+            foreach($request->file('files') as $file){
+                $mimeType = $file->getClientMimeType();
+                $name = $file->getClientOriginalName();
 
+                if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
+                    return response()->json(['error' => 'Tipo de archivo no valido']);
+                }
+
+                $path = $file->store('posts/'.$post->id);
+
+                Post_file::create([
+                    'post_id' => $post->id,
+                    'file_name' => $name,
+                    'file_path' => $path
+                ]);
+            }
+
+        }
+
+        $imagenBase64 = base64_encode(file_get_contents(storage_path("app/$path")));
+
+        return response()->json(['success' => 'File uploaded successfully', 'image' => $imagenBase64]);
     }
 
     public function storeLink(Request $request, Post $post){
