@@ -65,11 +65,18 @@ Route::controller(PostController::class)->group(function ()  {
 })->middleware(['auth:sanctum']);
 
 Route::controller(AssignmentController::class)->group(function(){
+    Route::post('assignment', 'store');
     Route::get('assignments', 'index')->middleware('student');
+    Route::get('assignment/{assignment}', 'show');
+
+    Route::put('assignment/{assignment}', 'update');
+
+    Route::delete('assignment/{assignment}', 'destroy');
 });
 
 Route::controller(ResponseController::class)->group(function () {
     Route::get('assignment/{assignment}/response', 'index');
+
 });
 
 
