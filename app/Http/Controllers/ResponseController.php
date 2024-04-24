@@ -17,7 +17,7 @@ class ResponseController extends Controller
     {
         $responses = Solution::all()->where('assignment_id', $assignment->id);
         if(!isset($responses)){
-            return response()->json(['error' => 'no responses to that task']);
+            return response()->json(['error' => 'no responses to that assignment']);
         }
         return response()->json($responses);
     }
@@ -25,9 +25,15 @@ class ResponseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request, Assignment $assignment)
+    {   
+        $solution = $request->validate([
+            'description' => ['string']
+        ]);
+        $solution['student_id'] = 1;
+        $solution['assignment_id'] = $assignment->id;
+
+        Solution::create($solution);
     }
 
     /**

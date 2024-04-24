@@ -10,6 +10,7 @@ class Assignment_links extends Model
     use HasFactory;
     protected $fillable = [
         'link',
-        'link_name'
+        'link_name',
+        'assignment_id'
     ];
 }

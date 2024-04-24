@@ -58,17 +58,6 @@ class GroupController extends Controller
             'posts' => $posts
         ]);
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Student $student)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
 
 
     /**
