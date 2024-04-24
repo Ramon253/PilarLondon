@@ -1,18 +1,30 @@
-DELETE http://localhost:8000/api/assignment/7
+POST http://localhost:8000/api/assignment/1/response
 Accept: application/json
 Content-Type: application/json;
-Authorization: 1|KNXyOQxNlGEnRT1Qmp2FMUDevIBrcVYndcvnPFjk4ba08cc2
+Authorization: Bearer 1|ksdLmstzGozApKrlXPdxGPsr6rLA8bBgfQhL3QgPb6e50f75
 
 {
     "name": "Que tal?",
     "dead_line": "2023/12/12",
     "description": "Hola ue tal estan ustedes",
-    "group_id": 1
+    "group_id": 1,
+    "content": "Adios?",
+    "public": "1",
+    "links": [
+        {
+            "link": "https://github.com/ramon2532",
+            "link_name": "mi github2"
+        },
+        {
+            "link": "https://github.com/ramon2533",
+            "link_name": "mi github3"
+        }
+    ]
 }
 ###
 
 
-GET http://localhost:8000/api/assignment/7
+GET http://localhost:8000/api/assignment/3
 Accept: application/json
 Content-Type: application/json
 Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8
@@ -28,3 +40,42 @@ Accept: application/json
     "password" : "123456789",
     "password_confirmation" : "123456789"
 }
+
+
+###
+POST http://localhost:8000/api/post
+Accept: application/json
+Authorization: 1|KNXyOQxNlGEnRT1Qmp2FMUDevIBrcVYndcvnPFjk4ba08cc2
+Content-Type: multipart/form-data; boundary=boundary
+User-Agent: IntelliJ HTTP Client/PhpStorm 2024.1.1 RC
+Accept-Encoding: br, deflate, gzip, x-gzip
+Cookie: authToken=5%257CUeYnJAyJYdiP6n5pnZjGdgl8oUgSaYjO9drKcE086c39ad2b
+content-length: 792
+
+--boundary
+Content-Disposition: form-data; name="files[1]"; filename="input.txt"
+Content-Type: text/plain
+
+Hola
+--boundary
+Content-Disposition: form-data; name="files[2]"; filename="input.txt"
+Content-Type: text/plain
+
+Hola
+--boundary
+Content-Disposition: form-data; name="subject"
+
+2024/12/12
+--boundary
+Content-Disposition: form-data; name="name"
+
+Prueba3
+--boundary
+Content-Disposition: form-data; name="description"
+
+     Hola ue tal estan ustedes
+--boundary
+Content-Disposition: form-data; name="group_id"
+
+    1
+--boundary--

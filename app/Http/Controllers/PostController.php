@@ -6,7 +6,7 @@ use App\Models\Post;
 use App\Http\Controllers\Controller;
 use App\Models\Post_comment;
 use App\Models\Post_file;
-use App\Models\Post_links;
+use App\Models\Post_link;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -28,15 +28,8 @@ class PostController extends Controller
         return response()->json(Post::all());
     }
 
-
-    public function getComments(Post $post)
-    {
-        return response()->json([
-            'comments' => $post->getComments()
-        ]);
-    }
     /**
-     * Store a newly created resource in storage.
+     * Store
      */
     public function store(Request $request)
     {
@@ -50,57 +43,33 @@ class PostController extends Controller
         $post = Post::create($post);
 
         if($request->has('links')){
+            $controller = new LinkController();
+            $result = $controller->storePost($request, $post);
 
-            $links = $request->validate([
-                "links.*.link" => ['required', 'string'],
-                "links.*.link_name" => ['required', 'string']
-            ]);
-
-            foreach($links['links'] as $link){
-                $link['post_id'] = $post->id;
-                Post_links::create($link);
+            if (isset($result['error'])){
+                return response()->json($result, 400);
             }
-
         }
 
         if($request->hasFile('files')){
-            foreach($request->file('files') as $file){
-                $mimeType = $file->getClientMimeType();
-                $name = $file->getClientOriginalName();
+            $controller = new FileController();
+            $result = $controller->storePost($request, $post);
 
-                if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf')) {
-                    return response()->json(['error' => 'Tipo de archivo no valido']);
-                }
-
-                $path = $file->store('posts/'.$post->id);
-
-                Post_file::create([
-                    'post_id' => $post->id,
-                    'file_name' => $name,
-                    'file_path' => $path
-                ]);
+            if (isset($result['error'])){
+                return response()->json($result, 400);
             }
-
         }
 
         return response()->json(['message' => 'post created successfully']);
     }
 
-    public function getFile(Post $post, string $file ){
 
-        $file = Post_file::find($file);
-
-        if($file === null){
-            return response()->json(['message' => 'file not found']);
-        }
-        return Storage::download($file->file_path, $file->file_name);
-    }
-
-     /* Display the specified resource.
+    /*
+     * Show
      */
     public function show(Post $post)
     {
-        $post['links'] = Post_links::all()->where('post_id', $post->id);
+        $post['links'] = Post_link::all()->where('post_id', $post->id);
         $post['files'] = Post_file::all()->where('post_id', $post->id);
         $post['comments'] = $post->getComments();
 
@@ -108,7 +77,7 @@ class PostController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update
      */
     public function update(Request $request, Post $post)
     {
@@ -122,70 +91,13 @@ class PostController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete
      */
     public function destroy(Post $post)
     {
-        $filesPaths = Post_file::all()->where('post_id' , $post->id);
-
-        foreach($filesPaths as $filePath){
-            Storage::delete($filePath->file_path);
-        }
+        Storage::deleteDirectory("posts/".$post->id);
         $post->delete();
         return response()->json(['success' => 'post successfully deleted']);
     }
 
-    public function destroyFile(Request $request, string $file) {
-        $path =Post_file::findOrFail($file);
-        Storage::delete($path->file_path);
-        Post_file::destroy($path);
-        return response()->json(['success' => 'File deleted successfully']);
-    }
-
-    public function destroyLink(Request $request, string $link) {
-        Post_links::destroy($link);
-        return response()->json(['success' => 'File deleted successfully']);
-    }
-
-
-
-    public function storeFile(Request $request, Post $post){
-        if($request->hasFile('files')){
-            foreach($request->file('files') as $file){
-                $mimeType = $file->getClientMimeType();
-                $name = $file->getClientOriginalName();
-
-                if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
-                    return response()->json(['error' => 'Tipo de archivo no valido']);
-                }
-
-                $path = $file->store('posts/'.$post->id);
-
-                Post_file::create([
-                    'post_id' => $post->id,
-                    'file_name' => $name,
-                    'file_path' => $path
-                ]);
-            }
-
-        }
-
-        $imagenBase64 = base64_encode(file_get_contents(storage_path("app/$path")));
-
-        return response()->json(['success' => 'File uploaded successfully', 'image' => $imagenBase64]);
-    }
-
-    public function storeLink(Request $request, Post $post){
-        $links = $request->validate([
-            "links.*.link" => ['required', 'string'],
-            "links.*.link_name" => ['required', 'string']
-        ]);
-
-        foreach($links['links'] as $link){
-            $link['post_id'] = $post->id;
-            Post_links::create($link);
-        }
-
-        return response()->json(['success' => 'Links added successfully']);
-    }
 }

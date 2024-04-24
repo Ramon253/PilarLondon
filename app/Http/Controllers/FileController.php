@@ -15,106 +15,96 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use function Pest\Laravel\json;
 
 class FileController extends Controller
 {
 
     /**
+     * Shows
+     */
+
+    public function showAssignment(Assignment_file $assignment_file){
+        return response()->json($assignment_file);
+    }
+    public function showPost(Post_file $post_file){
+        return response()->json($post_file);
+    }
+    public function showSolution(Solution_file $solution_file){
+        return response()->json($solution_file);
+    }
+    /**
      * Store
      */
-    public function storeAssignment(Request $request, Assignment $assignment)  {
-
-        if(!$request->has('files')){
-            return response()->json(['error' => 'No files sended']);
-        }
-
-        $files = $this->store($request, 'assignment', $assignment->id);
-
-        foreach($files as $file){
-            Assignment_file::create($file);
-        }
-
-        return response()->json(['success' => 'Files successfully uploaded'], 200);
+    public function storeAssignment(Request $request, Assignment $assignment)
+    {
+        return $this->store($request, 'assignment', $assignment->id, new Assignment_file);
     }
 
 
-    public function storePost(Request $request, Post $post)  {
-
-        if(!$request->has('files')){
-            return response()->json(['error' => 'No files sended']);
-        }
-
-        $files = $this->store($request, 'post', $post->id);
-
-        foreach($files as $file){
-            Post_file::create($file);
-        }
-
-        return response()->json(['success' => 'Files successfully uploaded'], 200);
+    public function storePost(Request $request, Post $post)
+    {
+        return $this->store($request, 'post', $post->id, new Post_file);
     }
 
 
-    public function storeSolution(Request $request, Solution $solution)  {
-
-        if(!$request->has('files')){
-            return response()->json(['error' => 'No files sended']);
-        }
-
-        $files = $this->store($request, 'response', $solution->id);
-
-        foreach($files as $file){
-            Solution_file::create($file);
-        }
-
-        return response()->json(['success' => 'Files successfully uploaded'], 200);
+    public function storeSolution(Request $request, Solution $solution)
+    {
+        return $this->store($request, 'response', $solution->id, new Solution_file);
     }
 
     /**
      * Destroys
      */
 
-     public function destroyPost(Post_file $post_file) {
-        $this->destroy($post_file);
-     }
+    public function destroyPost(Post_file $post_file)
+    {
+        return response()->json($this->destroy($post_file));
+    }
 
-     public function destroyAssignment(Assignment_file $assignment_file) {
-        $this->destroy($assignment_file);
-     }
+    public function destroyAssignment(Assignment_file $assignment_file)
+    {
+        return response()->json($this->destroy($assignment_file));
+    }
 
-     public function destroySolution(Assignment_file $assignment_file) {
-        $this->destroy($assignment_file);
-     }
+    public function destroySolution(Assignment_file $assignment_file)
+    {
+        return response()->json($this->destroy($assignment_file));
+    }
 
     /**
      * Private
      */
-    private function store(Request $request, string $table, string $id):bool | array
+    private function store(Request $request, string $table, string $id, Model $model)
     {
-        $files = [];
+        if (!$request->has('files')) {
+            return response()->json(['error' => 'No files sended']);
+        }
+
         foreach ($request->file('files') as $file) {
             $mimeType = $file->getClientMimeType();
             $name = $file->getClientOriginalName();
 
-            if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
+            if (!Str::contains($mimeType, 'text') && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
                 return false;
             }
-            
-            $path = $file->store($table. "s/$id");
 
-            $files[] = [
-                $table .'_id' => $id,
+            $path = $file->store($table . "s/$id");
+
+            $model::create([
+                $table . '_id' => $id,
                 'file_name' => $name,
                 'file_path' => $path
-            ];
+            ]);
         }
-        return $files;
+        return response()->json(['success' => 'Files successfully uploaded'], 200);
     }
 
-    private function destroy(Model $object):array
+    private function destroy(Model $object): array
     {
         $result = Storage::delete($object->file_path);
         $object->delete();
 
-        return ($result === 1)? ['success' => 'File destroyed successfully'] :['Error' => 'Error deleteing the file'] ;
+        return ((int)$result === 1) ? ['success' => 'File destroyed successfully'] : ['Error' => 'Error deleteing the file'];
     }
-   }
+}

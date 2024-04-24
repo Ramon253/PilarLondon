@@ -7,7 +7,7 @@ use App\Models\Assignment;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment_comment;
 use App\Models\Assignment_file;
-use App\Models\Assignment_links;
+use App\Models\Assignment_link;
 use App\Models\Group;
 use App\Models\Post_file;
 use App\Models\Student_group;
@@ -32,11 +32,12 @@ class AssignmentController extends Controller
     public function show(Assignment $assignment)
     {
         $assignment['files'] = Assignment_file::all()->where('assignment_id', $assignment->id);
-        $assignment['links'] = Assignment_links::all()->where('assignment_id', $assignment->id);
+        $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
         $assignment['comments'] = Assignment_comment::all()->where('assignment_id', $assignment->id);
 
         return response()->json($assignment);
     }
+
 
     /**
      * Store functions
@@ -54,51 +55,17 @@ class AssignmentController extends Controller
         $assignment = Assignment::create($assignment);
 
         if ($request->has('links')) {
-            $this->saveLinks($request, $assignment);
+            $controller = new LinkController;
+            $result = $controller->storeAssignment($request, $assignment);
         }
 
         if ($request->hasFile('files')) {
-            $this->saveFiles($request, $assignment);
+            $controller = new FileController;
+            $result = $controller->storeAssignment($request, $assignment);
         }
 
         return response()->json(['message' => 'assignment created successfully']);
     }
-
-    public function storeFile(Request $request, Assignment $assignment)
-    {
-        if (!$request->hasFile('files')) {
-            return response()->json(['error' => 'You must include a file to insert a file']);
-        }
-
-        if ($this->saveFiles($request, $assignment)) {
-            return response()->json(['success' => 'Files successfully uploaded'], 200);
-        }
-        return response()->json(['error' => 'Tipo de archivo no valido']);
-    }
-
-    public function storeLink(Request $request, Assignment $assignment)
-    {
-        if ($this->saveLinks($request, $assignment)) {
-            return response()->json(['success' => 'Links successfully uploaded']);
-        }
-        return response()->json(['error' => 'Error while saving links']);
-    }
-
-    public function storeComment(Request $request, Assignment $assignment)
-    {
-        $comment = $request->validate([
-            'content' => ['required', 'string'],
-            'public' => ['boolean'],
-            'parent_id' => [Rule::exists('Assignment_comments', 'id')]
-        ]);
-        $comment['user_id'] = auth()->id();
-        $comment['assignment_id'] = $assignment->id;
-
-        Assignment_comment::create($comment);
-
-        return response()->json(['success' => 'Comment successfuly created']);
-    }
-
 
 
     /**
@@ -106,36 +73,9 @@ class AssignmentController extends Controller
      */
     public function destroy(Assignment $assignment)
     {
-        /*
-        $files = Assignment_file::all()->where('assignment_id', $assignment->id);
-        foreach ($files as $file) {
-
-            Storage::delete($file->file_path);
-        }*/
         Storage::deleteDirectory("assignments/".$assignment->id);
         $assignment->delete();
         return response()->json(['message' => 'assignment deleted successfully']);
-    }
-
-    public function destroyFile(Assignment_file $assignment_file)
-    {
-        Storage::delete($assignment_file->file_path);
-        $assignment_file->delete();
-        return response()->json([
-            'success' => 'file destroyed successfully'
-        ]);
-    }
-
-    public function destroyLink(Assignment_links $assignment_link)
-    {
-        $assignment_link->delete();
-        return response()->json(['success' => 'Link successfully deleted'], 200);
-    }
-
-    public function destroyComment(Assignment_comment $assignment_comment)
-    {
-        $assignment_comment->delete();
-        return response()->json(['success' => 'Comment deleted successfully']);
     }
 
 
@@ -149,62 +89,11 @@ class AssignmentController extends Controller
             'dead_line' => ['string'],
             'description' => ['string'],
         ]);
+
         $assignment->update($assignmentData);
         return response()->json(['success' => 'post successfully updated']);
     }
 
-    public function updateComment(Request $request, Assignment_comment $assignment_comment)
-    {
-        $comment = $request->validate([
-            'content' => ['string'],
-            'public' => ['boolean']
-        ]);
-  
-        $assignment_comment->update($comment);
-
-        return response()->json(['success' => 'Comment successfully updated']);
-    }
 
 
-    /**
-     * Private functions
-     */
-
-    private function saveFiles(Request $request, Assignment $assignment): bool
-    {
-
-        foreach ($request->file('files') as $file) {
-            $mimeType = $file->getClientMimeType();
-            $name = $file->getClientOriginalName();
-
-            if (!Str::contains($mimeType, 'text')  && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
-                return false;
-            }
-
-            $path = $file->store('assignments/' . $assignment->id);
-
-            Assignment_file::create([
-                'assignment_id' => $assignment->id,
-                'file_name' => $name,
-                'file_path' => $path
-            ]);
-        }
-        return true;
-    }
-
-    private function saveLinks(Request $request, Assignment $assignment)
-    {
-
-        $links = $request->validate([
-            "links.*.link" => ['required', 'string'],
-            "links.*.link_name" => ['required', 'string']
-        ]);
-
-        foreach ($links['links'] as $link) {
-            $link['assignment_id'] = $assignment->id;
-            Assignment_links::create($link);
-        }
-
-        return true;
-    }
 }

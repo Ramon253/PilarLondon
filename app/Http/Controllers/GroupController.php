@@ -9,7 +9,7 @@ use App\Models\Student_group;
 use App\Models\Group;
 use App\Models\Student;
 use App\Models\Post_file;
-use App\Models\Post_links;
+use App\Models\Post_link;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
 
@@ -36,7 +36,7 @@ class GroupController extends Controller
         $posts = Post::all()->where('group_id', $group->id);
 
         foreach ($posts as $id => $post) {
-            $posts[$id]['links'] = Post_links::all()->where('post_id', $post->id);
+            $posts[$id]['links'] = Post_link::all()->where('post_id', $post->id);
             $posts[$id]['files'] = Post_file::all()->where('post_id', $post->id);
         }
 
