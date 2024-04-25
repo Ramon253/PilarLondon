@@ -10,6 +10,7 @@ use App\Models\Post_file;
 use App\Models\Solution;
 use App\Models\Solution_file;
 use GuzzleHttp\RetryMiddleware;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -34,6 +35,19 @@ class FileController extends Controller
         return response()->json($solution_file);
     }
     /**
+     * Downloads
+     */
+
+    public function downloadAssignment(Assignment_file $assignment_file){
+        return Storage::download($assignment_file->file_path, $assignment_file->file_name);
+    }
+    public function downloadPost(Post_file $post_file){
+        return Storage::download($post_file->file_path, $post_file->file_name);
+    }
+    public function downloadSolution(Solution_file $solution_file){
+        return Storage::download($solution_file->file_path, $solution_file->file_name);
+    }
+    /**
      * Store
      */
     public function storeAssignment(Request $request, Assignment $assignment)
@@ -50,7 +64,7 @@ class FileController extends Controller
 
     public function storeSolution(Request $request, Solution $solution)
     {
-        return $this->store($request, 'response', $solution->id, new Solution_file);
+        return $this->store($request, 'solution', $solution->id, new Solution_file);
     }
 
     /**
@@ -67,9 +81,9 @@ class FileController extends Controller
         return response()->json($this->destroy($assignment_file));
     }
 
-    public function destroySolution(Assignment_file $assignment_file)
+    public function destroySolution(Solution_file $solution_file)
     {
-        return response()->json($this->destroy($assignment_file));
+        return response()->json($this->destroy($solution_file));
     }
 
     /**

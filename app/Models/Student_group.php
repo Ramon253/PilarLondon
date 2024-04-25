@@ -10,6 +10,7 @@ class Student_group extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id', 'group_id'
+        'student_id', 
+        'group_id'
     ];
 }

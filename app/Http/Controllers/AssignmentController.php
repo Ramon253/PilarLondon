@@ -5,14 +5,20 @@ namespace App\Http\Controllers;
 use App\Mail\auth;
 use App\Models\Assignment;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\Student;
+use App\Http\Middleware\studentGroup;
 use App\Models\Assignment_comment;
 use App\Models\Assignment_file;
 use App\Models\Assignment_link;
 use App\Models\Group;
 use App\Models\Post_file;
+use App\Models\Solution;
+use App\Models\Solution_file;
+use App\Models\Solution_link;
 use App\Models\Student_group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -29,11 +35,23 @@ class AssignmentController extends Controller
         return response()->json($assignments);
     }
 
-    public function show(Assignment $assignment)
+    public function show(Assignment $assignment, Request $request)
     {
         $assignment['files'] = Assignment_file::all()->where('assignment_id', $assignment->id);
         $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
         $assignment['comments'] = Assignment_comment::all()->where('assignment_id', $assignment->id);
+
+        $solution = Solution::all()
+            ->where('assignment_id', $assignment->id)
+            ->where('student_id', $request['student']->id)
+            ->first();
+
+        $assignment['solution'] = ($solution)?  [
+            'body' => $solution,
+            'solution_files' => Solution_file::all()->where('solution_id', $solution->id),
+            'solution_links' => Solution_link::all()->where('solution_id', $solution->id)
+        ]: [];
+
 
         return response()->json($assignment);
     }
@@ -73,7 +91,7 @@ class AssignmentController extends Controller
      */
     public function destroy(Assignment $assignment)
     {
-        Storage::deleteDirectory("assignments/".$assignment->id);
+        Storage::deleteDirectory("assignments/" . $assignment->id);
         $assignment->delete();
         return response()->json(['message' => 'assignment deleted successfully']);
     }
@@ -93,7 +111,4 @@ class AssignmentController extends Controller
         $assignment->update($assignmentData);
         return response()->json(['success' => 'post successfully updated']);
     }
-
-
-
 }

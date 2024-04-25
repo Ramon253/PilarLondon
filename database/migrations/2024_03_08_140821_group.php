@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('groups', function (Blueprint $table){
             $table->id();
-            $table->string('banner');
-            $table->string('level');
+            $table->file('banner');
+            $table->enum('level', ['A1','A2','B1','B2','C1','C2']);
             $table->integer('capacity')->unsigned();
             $table->time('lessons_time');
-            $table->string('lesson_days');
+            $table->enum('lesson_days', ['l-m', 'm-j', 'v']);
             $table->foreignId('teacher_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

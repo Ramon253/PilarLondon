@@ -11,6 +11,8 @@ class Solution extends Model
 
     protected $fillable = [
         'description',
-        'note'
+        'note',
+        'student_id',
+        'assignment_id'
     ];
 }

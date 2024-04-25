@@ -52,7 +52,7 @@ class LinkController extends Controller
 
     public function storeSolution(Request $request, Solution $solution)
     {
-        return $this->store($request, 'response', $solution->id, new Solution_link);
+        return $this->store($request, 'solution', $solution->id, new Solution_link);
     }
 
     /**
@@ -69,9 +69,9 @@ class LinkController extends Controller
         return response()->json($this->destroy($assignment_link));
     }
 
-    public function destroySolution(Assignment_link $assignment_link)
+    public function destroySolution(Solution_link $solution_link)
     {
-        return response()->json($this->destroy($assignment_link));
+        return response()->json($this->destroy($solution_link));
     }
 
     /**
@@ -94,6 +94,6 @@ class LinkController extends Controller
     private function destroy(Model $object): array
     {
         $result = $object->delete();
-        return ((int)$result === 1) ? ['success' => 'File destroyed successfully'] : ['Error' => 'Error deleteing the file'];
+        return ((int) $result === 1) ? ['success' => 'Link destroyed successfully'] : ['Error' => 'Error deleteing the link'];
     }
 }

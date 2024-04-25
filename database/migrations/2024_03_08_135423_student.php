@@ -16,11 +16,12 @@ return new class extends Migration {
             $table->string('profile_photo')->nullable();
             $table->string('full_name');
             $table->string('surname');
-            $table->string('level');
+            $table->enum('level', ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
             $table->date('birth_date');
+            $table->string('phone_number');
             $table->unsignedBigInteger('parent_id')->nullable();
-
-            $table->foreign('parent_id')->references('id')->on('users');
+            
+            $table->foreign('parent_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Solution_file;
 use App\Models\Solution_link;
+use App\Rules\gradeRule;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ResponseController extends Controller
 {
@@ -43,7 +45,7 @@ class ResponseController extends Controller
             $links = $controller->storeSolution($request, $solution);
         }
 
-        if ($request->hasFile('links')) {
+        if ($request->hasFile('files')) {
             $controller = new FileController;
             $files = $controller->storeSolution($request, $solution);
         }
@@ -70,9 +72,10 @@ class ResponseController extends Controller
     public function update(Request $request, Solution $solution)
     {
         $newSolution = $request->validate(['description' => ['string']]);
+    
         $result = $solution->update($newSolution);
 
-        return ((int)$result === 1) ? response()->json(['success' => 'Response successfully updated', 'solution' => $solution]) : response()->json(['error' => 'Error updating ']);
+        return ((int) $result === 1) ? response()->json(['success' => 'Response successfully updated', 'solution' => $solution]) : response()->json(['error' => 'Error updating ']);
     }
 
     /**
@@ -85,4 +88,26 @@ class ResponseController extends Controller
 
         return response()->json(['success' => 'Response successfully deleted']);
     }
+
+
+    /**
+     * Grade function
+     */
+
+     public function grade(Request $request, Solution $solution)
+     {  
+        $grade = $request->validate([
+            'note' => ['required','numeric', 'decimal:0,2', 'min:1', 'max:10'],
+        ]);
+        $result = $solution->update($grade);
+
+
+        return ((int) $result === 1)? response()->json([
+            'success' => 'Solution graded successfully'
+        ]):
+        response()->json([
+            'error' => 'Error grading the response'
+        ]);
+
+     }
 }
