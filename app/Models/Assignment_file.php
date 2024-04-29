@@ -14,7 +14,7 @@ class Assignment_file extends Model
         'file_name',
         'assignment_id',
         'mime_type',
-        'multimadia'
+        'multimedia'
     ];
 
 }

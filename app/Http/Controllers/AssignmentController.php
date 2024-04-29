@@ -37,21 +37,21 @@ class AssignmentController extends Controller
 
     public function show(Assignment $assignment, Request $request)
     {
+
         $assignment['files'] = Assignment_file::all()->where('assignment_id', $assignment->id);
         $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
         $assignment['comments'] = Assignment_comment::all()->where('assignment_id', $assignment->id);
 
-        
         $solution = Solution::all()
             ->where('assignment_id', $assignment->id)
             ->where('student_id', $request['student']->id)
             ->first();
 
-        $assignment['solution'] = ($solution)?  [
+        $assignment['solution'] = ($solution) ? [
             'body' => $solution,
             'solution_files' => Solution_file::all()->where('solution_id', $solution->id),
             'solution_links' => Solution_link::all()->where('solution_id', $solution->id)
-        ]: [];
+        ] : [];
 
 
         return response()->json($assignment);
@@ -62,8 +62,9 @@ class AssignmentController extends Controller
      * Store functions
      */
 
-    public function store(Request $request)
+    public function store(Request $request, Group $group)
     {
+        $request['group_id'] = $group->id;
         $assignment = $request->validate([
             'name' => ['required', 'string'],
             'dead_line' => ['required', 'date'],

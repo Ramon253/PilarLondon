@@ -9,12 +9,12 @@ class Solution_file extends Model
 {
     use HasFactory;
 
-    
+
     protected $fillable = [
         'solution_id',
         'file_name',
         'file_path',
-        'mimetype',
-        'multimadia'
+        'mime_type',
+        'multimedia'
       ];
 }

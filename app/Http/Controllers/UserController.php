@@ -58,10 +58,11 @@ class UserController extends Controller
             session()->regenerate();
             return response()->json([
                 'user' => $request->user(),
+                'success' => 'logged in successfully'
             ]);
         }
 
-        return response()->json(['auth' => 'Incorrect credentials']);
+        return response()->json(['error' => 'Incorrect credentials']);
     }
 
 

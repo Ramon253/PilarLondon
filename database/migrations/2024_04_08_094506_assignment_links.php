@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('link');
             $table->string('link_name');
+            $table->string('header')->nullable();
 
             $table->foreignId('assignment_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 

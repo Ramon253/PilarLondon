@@ -27,14 +27,12 @@ class GroupController extends Controller
      */
     public function index()
     {
-        $groups =  Group::all();
-        $response = [];
-        foreach ($groups as $group) {
-            $stundentsNumber = Student_group::all()->where('group_id', $group->id)->count();
-            $group['studentNumber'] = $stundentsNumber;
-            $response[] = $group;
-        }
-        return response()->json($response);
+        $groups = Group::all()->map(function (Group $group) {
+            $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
+            return $group;
+        });
+
+        return response()->json($groups);
     }
 
 
@@ -147,59 +145,44 @@ class GroupController extends Controller
         return response()->json(['sucess' => 'the student has joined the class successfully']);
     }
 
-    
+
     public function kick(Request $request, Group $group)
     {
         $student_id = $request['student']->id;
 
         $relation = Student_group::where('student_id', $student_id)->where('group_id', $group->id)->delete();
-  
+
         return response()->json(['sucess' => 'the student has leaved the class successfully']);
     }
 
 
-
-
     /*
-    * Privates 
+    * Privates
     */
 
-    private function getPosts(Group $group): Collection
+    private function getPosts(Group $group)
     {
+        return Post::all()->where('group_id', $group->id)->map(function (Post $post) {
+            $post['links'] = Post_link::all()->where('post_id', $post->id);
+            $post['files'] = Post_file::all()
+                ->where('post_id', $post->id)
+                ->map(fn($file) => collect($file)->except('file_path'));
 
-        $posts = Post::all()->where('group_id', $group->id);
-
-        foreach ($posts as $id => $post) {
-            $posts[$id]['links'] = Post_link::all()->where('post_id', $post->id);
-            $posts[$id]['files'] = Post_file::all()->where('post_id', $post->id);
-        }
-
-        return $posts;
+            return $post;
+        });
     }
+
     private function getAssignments(Group $group): Collection
     {
 
-        $assignments =  Assignment::all()->where('group_id', $group->id);
+        return Assignment::all()->where('group_id', $group->id)->map(function (Assignment $assignment) {
+            $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
+            $assignment['files'] = Assignment_file::all()
+                ->where('assignment_id', $assignment->id)
+                ->map(fn($file) => collect($file)->except('file_path'));
 
+            return $assignment;
+        });
 
-        foreach ($assignments as $id => $assignment) {
-            $assignments[$id]['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
-            $files = Assignment_file::all()->where('assignment_id', $assignment->id);
-
-            $multimedia = $files->filter(function ($file) {
-                return $file['multimedia'];
-            });
-
-            $multimedia = $multimedia->map(function ($file)  {
-                $file[$file->mimetype] = base64_encode(Storage::get($file->file_path));
-                return collect($file)->except('file_path');
-            });
-
-            $assignments[$id]['files'] = $files;
-            $assignments[$id]['multimedia'] = $multimedia;
-
-
-        }
-        return $assignments;
     }
 }

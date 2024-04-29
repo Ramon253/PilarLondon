@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use App\Models\Post;
 use App\Http\Controllers\Controller;
 use App\Models\Post_comment;
@@ -31,8 +32,9 @@ class PostController extends Controller
     /**
      * Store
      */
-    public function store(Request $request)
+    public function store(Request $request, Group $group)
     {
+        $request['group_id'] = $group->id;
         $post = $request->validate([
             'name' => ['required', 'string'],
             'subject' => ['required', 'string'],
@@ -53,7 +55,7 @@ class PostController extends Controller
 
         if($request->hasFile('files')){
             $controller = new FileController();
-            $result = $controller->storePost($request, $post);
+            $result = $controller->storePost($request, $post)->getContent();
 
             if (isset($result['error'])){
                 return response()->json($result, 400);

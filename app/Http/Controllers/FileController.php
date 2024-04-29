@@ -20,6 +20,7 @@ use function Pest\Laravel\json;
 
 class FileController extends Controller
 {
+    private array $allowedMimetypes = ['image', 'text', 'audio', 'video', 'pdf'];
 
     /**
      * Shows
@@ -41,6 +42,8 @@ class FileController extends Controller
      * Downloads
      */
 
+
+
     public function downloadAssignment(Assignment_file $assignment_file)
     {
         return Storage::download($assignment_file->file_path, $assignment_file->file_name);
@@ -52,6 +55,19 @@ class FileController extends Controller
     public function downloadSolution(Solution_file $solution_file)
     {
         return Storage::download($solution_file->file_path, $solution_file->file_name);
+    }
+
+    public function getAssignment(Assignment_file $assignment_file)
+    {
+        return Storage::get($assignment_file->file_path);
+    }
+    public function getPost(Post_file $post_file)
+    {
+        return Storage::get($post_file->file_path);
+    }
+    public function getSolution(Solution_file $solution_file)
+    {
+        return Storage::get($solution_file->file_path);
     }
     /**
      * Store
@@ -104,14 +120,18 @@ class FileController extends Controller
         foreach ($request->file('files') as $file) {
             $mimeType = $file->getClientMimeType();
             $name = $file->getClientOriginalName();
-            $multimedia = false;
+            $isAllowed = false;
 
-            if (!Str::contains($mimeType, 'text') && !Str::contains($mimeType, 'pdf')) {
-                if (!Str::contains($mimeType, 'image') && !Str::contains($mimeType, 'video'))
-                    return false;
-                $mimeType = (Str::contains($mimeType, 'image')) ? 'image' : 'video';
-                $multimedia = true;
+            foreach ($this->allowedMimetypes as $allowedMimetype) {
+                if (Str::contains($mimeType, $allowedMimetype)) {
+                    $isAllowed = true;
+                    break;
+                }
             }
+            if (!$isAllowed) {
+                return response()->json(['error' => 'Invalid file type']);
+            }
+
 
             $path = $file->store($table . "s/$id");
 
@@ -119,8 +139,8 @@ class FileController extends Controller
                 $table . '_id' => $id,
                 'file_name' => $name,
                 'file_path' => $path,
-                'mimetype' => $mimeType,
-                'multimedia' => $multimedia
+                'mime_type' => $mimeType,
+                'header' =>   $request['header']
             ]);
         }
         return response()->json(['success' => 'Files successfully uploaded'], 200);

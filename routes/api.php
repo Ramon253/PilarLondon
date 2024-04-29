@@ -8,6 +8,7 @@ use App\Http\Controllers\LinkController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\student;
 use App\Http\Middleware\studentGroup;
@@ -51,19 +52,19 @@ Route::controller(StudentController::class)->group(function () {
     Route::middleware(['auth:sanctum', 'student'])->group(function () {
 
         Route::get('dashboard', 'dashboard');
-        Route::get('profile', 'show');
-
-
-        Route::delete('student', 'destroy');
-
+        Route::get('student', 'show');
         Route::put('student', 'update');
+        Route::delete('student', 'destroy');
     });
 });
 
+Route::controller(TeacherController::class)->group(function () {
+    Route::post('student/generate', 'generateStudent')->middleware(['auth:sanctum']);
+});
 
 Route::controller(GroupController::class)->group(function () {
-    Route::get('groups', 'index')->middleware(['auth:sanctum']);
-    Route::get('group/{group}',  'show');
+    Route::get('groups', 'index');
+    Route::get('group/{group}', 'show');
     Route::get('group/{group}/posts', 'showPosts');
     Route::get('group/{group}/assignments', 'showAssignments');
 
@@ -79,7 +80,7 @@ Route::controller(PostController::class)->group(function () {
     Route::get('posts', 'index');
     Route::get('post/{post}', 'show');
 
-    Route::post('post', 'store');
+    Route::post('group/{group}/post', 'store');
 
     Route::delete('post/{post}', 'destroy');
 
@@ -89,9 +90,9 @@ Route::controller(PostController::class)->group(function () {
 Route::controller(AssignmentController::class)->group(function () {
 
     Route::get('assignments', 'index');
-    Route::get('assignment/{assignment}', 'show')->middleware('student');
+    Route::get('assignment/{assignment}', 'show');
 
-    Route::post('assignment', 'store');
+    Route::post('group/{group}/assignment', 'store');
 
     Route::delete('assignment/{assignment}', 'destroy');
 
@@ -112,12 +113,15 @@ Route::controller(ResponseController::class)->group(function () {
 });
 
 
-
 Route::controller(FileController::class)->group(function () {
 
     Route::get('assignment/file/{assignment_file}', 'showAssignment');
     Route::get('post/file/{post_file}', 'showPost');
     Route::get('solution/file/{solution_file}', 'showSolution');
+
+    Route::get('assignment/file/{assignment_file}/get', 'getAssignment');
+    Route::get('post/file/{post_file}/get', 'getPost');
+    Route::get('solution/file/{solution_file}/get', 'getSolution');
 
     Route::get('assignment/file/{assignment_file}/download', 'downloadAssignment');
     Route::get('post/file/{post_file}/download', 'downloadPost');

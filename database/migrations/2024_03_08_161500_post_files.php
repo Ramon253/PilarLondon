@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('file_path');
             $table->string('mime_type');
-            $table->boolean('multimedia');
+
+            $table->string('header')->nullable();
             $table->foreignId('post_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();

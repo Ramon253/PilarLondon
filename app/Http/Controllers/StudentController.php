@@ -29,13 +29,11 @@ class StudentController extends Controller
 {
 
     /**
-     * shows 
+     * shows
      */
 
     public function show(Request $request)
     {
-        
-        
         $student = $request['student'];
         $groups = $student->getGroups();
         $parents = Parents::all()->where('student_id', $student->id);
@@ -54,7 +52,7 @@ class StudentController extends Controller
     public function dashboard(Request $request)
     {
         $student = $request['student'];
-        
+
         $groups = $student->getGroups();
         $submissions = Solution::all()->where('student_id', $student->id);
         $posts = Post::all()->whereIn('group_id', $groups);
@@ -81,14 +79,12 @@ class StudentController extends Controller
     }
 
     /**
-     * Store 
+     * Store
      */
     public function store(Request $request)
     {
         try {
-      
             $join_code = Join_code::all()->where('user_id', auth()->id())->firstOrFail();
-
             if ($join_code->role !== 'student') {
                 return response()->json(['error' => 'You cant be student, your role is' . $join_code->role]);
             }

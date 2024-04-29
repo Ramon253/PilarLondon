@@ -13,7 +13,7 @@ class Post_file extends Model
       'post_id',
       'file_name',
       'file_path',
-      'mimetype',
-      'multimadia'
+      'mime_type',
+      'multimedia'
     ];
 }
