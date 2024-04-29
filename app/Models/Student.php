@@ -27,12 +27,4 @@ class Student extends Model
             ->get();
     }
 
-    static function isStudent($user_id)
-    {
-        return self::query()->where('user_id', $user_id)->first();
-    }
-
-    static function isParent($user_id)  {
-        return null !== self::query()->where('parent_id', $user_id)->first();
-    }
 }

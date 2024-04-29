@@ -137,13 +137,7 @@ class GroupController extends Controller
      */
     public function join(Request $request, Group $group)
     {
-
-        $studentId = $request->validate([
-            'student_id' => ['required', Rule::exists('students', 'id')]
-        ]);
-
-        $student_id = $studentId['student_id'];
-
+        $student_id = $request['student']->id;
 
         Student_group::create([
             'student_id' => $student_id,
@@ -154,21 +148,12 @@ class GroupController extends Controller
     }
 
     
-    public function kick(Request $request, Group $group, Student $student)
+    public function kick(Request $request, Group $group)
     {
+        $student_id = $request['student']->id;
 
-        $studentId = $request->validate([
-            'student_id' => ['required', Rule::exists('students', 'id')]
-        ]);
-
-        $student_id = $studentId['student_id'];
-
-
-        Student_group::destroy([
-            'student_id' => $student_id,
-            'group_id' => $group->id
-        ]);
-
+        $relation = Student_group::where('student_id', $student_id)->where('group_id', $group->id)->delete();
+  
         return response()->json(['sucess' => 'the student has leaved the class successfully']);
     }
 
@@ -199,7 +184,21 @@ class GroupController extends Controller
 
         foreach ($assignments as $id => $assignment) {
             $assignments[$id]['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
-            $assignments[$id]['files'] = Assignment_file::all()->where('assignment_id', $assignment->id);
+            $files = Assignment_file::all()->where('assignment_id', $assignment->id);
+
+            $multimedia = $files->filter(function ($file) {
+                return $file['multimedia'];
+            });
+
+            $multimedia = $multimedia->map(function ($file)  {
+                $file[$file->mimetype] = base64_encode(Storage::get($file->file_path));
+                return collect($file)->except('file_path');
+            });
+
+            $assignments[$id]['files'] = $files;
+            $assignments[$id]['multimedia'] = $multimedia;
+
+
         }
         return $assignments;
     }

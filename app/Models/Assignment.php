@@ -13,6 +13,7 @@ class Assignment extends Model
         'name',
         'dead_line',
         'description',
-        'group_id'
+        'group_id',
+        'inClass'
     ];
 }

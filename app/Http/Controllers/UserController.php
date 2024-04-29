@@ -4,19 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Mail\auth as MailAuth;
 use App\Models\Group;
+use App\Models\Join_code;
 use App\Models\Student;
 use App\Models\Student_group;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
 use PHPUnit\Framework\MockObject\Builder\Stub;
 
 class UserController extends Controller
 {
 
-    public function login_token(Request $request) {
+    /**
+     * Logins/logout
+     */
+    public function login_token(Request $request)
+    {
         $identifier = self::getIdentifier($request);
 
         $formData = $request->validate([
@@ -34,14 +41,6 @@ class UserController extends Controller
         return response()->json(['auth' => 'Incorrect credentials']);
     }
 
-    public function  dashboard() {
-        $student = Student::isStudent(auth()->id());
-        $groups = $student->getGroups();
-        return response()->json([
-            'student' => $student
-        ]);
-    }
-
     public function login(Request $request)
     {
 
@@ -56,16 +55,6 @@ class UserController extends Controller
 
         if (auth()->attempt($formData, $remmberMe)) {
 
-            /*
-            if (is_null($user->email_verified_at)) {
-                auth()->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                self::sendMail($user);
-                return redirect('/verify');
-            }*/
-            //request->session()->regenerate();
             session()->regenerate();
             return response()->json([
                 'user' => $request->user(),
@@ -75,62 +64,35 @@ class UserController extends Controller
         return response()->json(['auth' => 'Incorrect credentials']);
     }
 
-    public function show() {
-        $student = Student::isStudent(auth()->id());
-        $response = [
-            "user" => auth()->user()
-        ];
-
-        if (isset($student))
-            $response['student'] = $student;
-
-        return response()->json($response);
-    }
 
     public function logout(Request $request)
     {
         auth()->logout();
-        auth()->user();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Logged out successfully']);
     }
-
-    public function verify(Request $request)
-    {
-        $code = $request->validate(['code' => 'required'])['code'];
-        if (session()->missing('verificationCode')) {
-            return redirect('/')->with('message', 'There it is no login attempt in this session');
-        }
-        if (session('verificationCode') !== (int)$code) {
-            return back()->with('message', 'Incorrect code');
-        }
-        auth()->login(session('user'));
-        $request->session()->regenerate();
-
-        $user = session('user');
-        $user->email_verified_at = now();
-        $user->save();
-
-        return redirect('/')->with('message', 'Auth passes successfully');
-    }
-
     /**
-     * @throws RandomException
+     * Shows
      */
-    private static function sendMail($user)
-    {
-        $code = random_int(100000, 999999);
-        session(['verificationCode' => $code]);
-        session(['user' => $user]);
 
-        Mail::to($user->email)->send(new MailAuth($code));
+    public function show(Request $request)
+    {
+
+        $response = [
+            "user" => auth()->user()
+        ];
+
+        if ($request->has('student'))
+            $response['student'] = $request['student'];
+
+        return response()->json($response);
     }
 
 
     /**
-     * Store a newly created resource in storage.
+     * Register
      */
     public function store(Request $request)
     {
@@ -145,6 +107,54 @@ class UserController extends Controller
         return response()->json(['message' => 'user created successfully']);
     }
 
+
+    /**
+     * Activations
+     */
+
+    public function verify(Request $request)
+    {
+        $code = $request->validate(['code' => 'required'])['code'];
+
+        if (session()->missing('verificationCode')) {
+            return response()->json('error', 'There it is no login attempt in this session');
+        }
+        if (session('verificationCode') !== (int) $code) {
+            return response()->json('error', 'Incorrect code');
+        }
+
+        $user = auth()->user();
+        $user->email_verified_at = now();
+        $user->save();
+
+        return response()->json('success', 'Auth passed successfully');
+    }
+
+
+    public function activate(Request $request)
+    {
+        $data = $request->validate([
+            'join_code' => ['required', Rule::exists('join_codes', 'code')]
+        ]);
+
+        try {
+            $code = Join_code::findOrFail($data['join_code']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Code not found']);
+        }
+
+        if ($code->user_id !== null) {
+            return response()->json(['error' => 'code already in use']);
+        }
+
+        $code->user_id = auth()->id();
+        $code->save();
+
+        return response()->json(['success' => 'account successfully activated']);
+    }
+    /**
+     * Privates
+     */
     private static function getIdentifier(Request $request)
     {
         $field = 'name';
@@ -157,5 +167,13 @@ class UserController extends Controller
             $value = $request->email;
         }
         return ['field' => $field, 'validation' => $validation, 'value' => $value];
+    }
+    private static function sendMail($user)
+    {
+        $code = random_int(100000, 999999);
+        session(['verificationCode' => $code]);
+        session(['user' => $user]);
+
+        Mail::to($user->email)->send(new MailAuth($code));
     }
 }

@@ -25,26 +25,32 @@ class FileController extends Controller
      * Shows
      */
 
-    public function showAssignment(Assignment_file $assignment_file){
+    public function showAssignment(Assignment_file $assignment_file)
+    {
         return response()->json($assignment_file);
     }
-    public function showPost(Post_file $post_file){
+    public function showPost(Post_file $post_file)
+    {
         return response()->json($post_file);
     }
-    public function showSolution(Solution_file $solution_file){
+    public function showSolution(Solution_file $solution_file)
+    {
         return response()->json($solution_file);
     }
     /**
      * Downloads
      */
 
-    public function downloadAssignment(Assignment_file $assignment_file){
+    public function downloadAssignment(Assignment_file $assignment_file)
+    {
         return Storage::download($assignment_file->file_path, $assignment_file->file_name);
     }
-    public function downloadPost(Post_file $post_file){
+    public function downloadPost(Post_file $post_file)
+    {
         return Storage::download($post_file->file_path, $post_file->file_name);
     }
-    public function downloadSolution(Solution_file $solution_file){
+    public function downloadSolution(Solution_file $solution_file)
+    {
         return Storage::download($solution_file->file_path, $solution_file->file_name);
     }
     /**
@@ -98,9 +104,13 @@ class FileController extends Controller
         foreach ($request->file('files') as $file) {
             $mimeType = $file->getClientMimeType();
             $name = $file->getClientOriginalName();
+            $multimedia = false;
 
-            if (!Str::contains($mimeType, 'text') && !Str::contains($mimeType, 'pdf') && !Str::contains($mimeType, 'image')) {
-                return false;
+            if (!Str::contains($mimeType, 'text') && !Str::contains($mimeType, 'pdf')) {
+                if (!Str::contains($mimeType, 'image') && !Str::contains($mimeType, 'video'))
+                    return false;
+                $mimeType = (Str::contains($mimeType, 'image')) ? 'image' : 'video';
+                $multimedia = true;
             }
 
             $path = $file->store($table . "s/$id");
@@ -108,7 +118,9 @@ class FileController extends Controller
             $model::create([
                 $table . '_id' => $id,
                 'file_name' => $name,
-                'file_path' => $path
+                'file_path' => $path,
+                'mimetype' => $mimeType,
+                'multimedia' => $multimedia
             ]);
         }
         return response()->json(['success' => 'Files successfully uploaded'], 200);

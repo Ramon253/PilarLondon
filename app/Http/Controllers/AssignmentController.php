@@ -41,6 +41,7 @@ class AssignmentController extends Controller
         $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
         $assignment['comments'] = Assignment_comment::all()->where('assignment_id', $assignment->id);
 
+        
         $solution = Solution::all()
             ->where('assignment_id', $assignment->id)
             ->where('student_id', $request['student']->id)
@@ -67,7 +68,8 @@ class AssignmentController extends Controller
             'name' => ['required', 'string'],
             'dead_line' => ['required', 'date'],
             'description' => ['string'],
-            'group_id' => ['required', Rule::exists('groups', 'id')]
+            'group_id' => ['required', Rule::exists('groups', 'id')],
+            'inClass' => ['boolean']
         ]);
 
         $assignment = Assignment::create($assignment);

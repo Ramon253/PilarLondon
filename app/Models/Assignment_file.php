@@ -12,7 +12,9 @@ class Assignment_file extends Model
     protected $fillable = [
         'file_path',
         'file_name',
-        'assignment_id'
+        'assignment_id',
+        'mime_type',
+        'multimadia'
     ];
 
 }

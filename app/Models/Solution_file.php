@@ -13,6 +13,8 @@ class Solution_file extends Model
     protected $fillable = [
         'solution_id',
         'file_name',
-        'file_path'
+        'file_path',
+        'mimetype',
+        'multimadia'
       ];
 }

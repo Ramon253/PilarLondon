@@ -18,10 +18,8 @@ return new class extends Migration {
             $table->string('surname');
             $table->enum('level', ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
             $table->date('birth_date');
-            $table->string('phone_number');
-            $table->unsignedBigInteger('parent_id')->nullable();
-            
-            $table->foreign('parent_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('phone_number')->nullable();
+
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

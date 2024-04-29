@@ -33,17 +33,31 @@ use function Pest\Laravel\json;
 */
 
 Route::controller(UserController::class)->group(function () {
-    Route::get('dashboard', 'dashboard');
     Route::get('user', 'show')->middleware('auth:sanctum');
+
     Route::post('user', 'store');
     Route::post('login', 'login');
     Route::post('login-token', 'login_token');
+
     Route::post('logout', 'logout')->middleware('auth:sanctum');
+    Route::post('activate', 'activate')->middleware('auth:sanctum');
+    Route::post('verify', 'verify')->middleware('auth:sanctum');
 });
 
 
 Route::controller(StudentController::class)->group(function () {
-    Route::post('student', 'store');
+    Route::post('student', 'store')->middleware(['auth:sanctum']);
+
+    Route::middleware(['auth:sanctum', 'student'])->group(function () {
+
+        Route::get('dashboard', 'dashboard');
+        Route::get('profile', 'show');
+
+
+        Route::delete('student', 'destroy');
+
+        Route::put('student', 'update');
+    });
 });
 
 
@@ -54,10 +68,10 @@ Route::controller(GroupController::class)->group(function () {
     Route::get('group/{group}/assignments', 'showAssignments');
 
     Route::post('group/{group}', 'store');
-    Route::post('group/{group}/join', 'join');
+    Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'student']);
 
     Route::delete('group/{group}', 'destroy');
-    Route::delete('group/{group}/kick', 'kick');
+    Route::delete('group/{group}/kick', 'kick')->middleware(['student']);
 });
 
 Route::controller(PostController::class)->group(function () {

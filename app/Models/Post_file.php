@@ -12,6 +12,8 @@ class Post_file extends Model
     protected $fillable = [
       'post_id',
       'file_name',
-      'file_path'
+      'file_path',
+      'mimetype',
+      'multimadia'
     ];
 }

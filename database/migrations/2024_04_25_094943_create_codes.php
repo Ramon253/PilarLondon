@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('join_codes', function (Blueprint $table) {
 
             $table->string('code')->uniqueid();
-            $table->enum('role', ['student', 'teacher'])->default('student');
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate()->unique();
+            $table->enum('role', ['student', 'teacher', 'parent'])->default('student');
+            $table->foreignId('user_id')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate()
+                ->unique()
+                ->nullable();
 
             $table->timestamps();
 

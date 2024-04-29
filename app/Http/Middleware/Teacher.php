@@ -2,12 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Join_code;
+use App\Mail\auth;
 use Closure;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Teacher as ModelTeacher;
 
-class HasCode
+class Teacher
 {
     /**
      * Handle an incoming request.
@@ -16,8 +18,13 @@ class HasCode
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $code = Join_code::find();
-
+        try{
+            $teacher = ModelTeacher::findOrFail(auth()->id());
+            $request['teacher'] = $teacher;
+            
+        }catch(ModelNotFoundException $e){
+            return response()->json(['error' => 'You must be a techaer to access this']);
+        }
         return $next($request);
     }
 }

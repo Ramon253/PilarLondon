@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assignments', function (Blueprint $table){
+        Schema::create('parents',function(Blueprint $table){
             $table->id();
+            $table->foreignId('user_id');
             $table->string('name');
-            $table->longText('description');
-            $table->dateTime('dead_line')->nullable();
-            $table->foreignId('group_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-
+            $table->string('surname');
+            $table->string('phone_number');
             $table->timestamps();
         });
     }

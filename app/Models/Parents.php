@@ -5,14 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Student_group extends Model
+class Parents extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'student_id', 
-        'group_id'
-    ];
-
-    public $incrementing = false;
+    protected $fillable = ['name', 'surname', 'phone_number'];
 }
