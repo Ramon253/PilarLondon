@@ -26,7 +26,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        return response()->json(Post::all());
+        return response()->json(Post::all()->map(function ($post) {
+            $post['links'] = Post_link::all()->where('post_id', $post->id);
+            $post['files'] = Post_file::all()->where('post_id', $post->id);
+            return $post;
+        }));
     }
 
     /**
