@@ -44,4 +44,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+
+    public function getRol(): string
+    {
+
+        if (Student::all()->where('user_id', $this->id)->first()) {
+            return 'student';
+        }
+        if (Parents::all()->where('user_id', $this->id)->first()) {
+            return 'parent';
+        }
+        if (Teacher::all()->where('user_id', $this->id)->first()) {
+            return 'teacher';
+        }
+        return 'none';
+    }
 }

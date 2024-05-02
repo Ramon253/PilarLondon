@@ -27,8 +27,9 @@ class PostController extends Controller
     public function index()
     {
         return response()->json(Post::all()->map(function ($post) {
-            $post['links'] = Post_link::all()->where('post_id', $post->id);
-            $post['files'] = Post_file::all()->where('post_id', $post->id);
+            $post['links'] = array_values (Post_link::all()->where('post_id', $post->id)->toArray());
+            $post['files'] = array_values (Post_file::all()->where('post_id', $post->id)->toArray());
+            
             return $post;
         }));
     }
@@ -48,20 +49,20 @@ class PostController extends Controller
 
         $post = Post::create($post);
 
-        if($request->has('links')){
+        if ($request->has('links')) {
             $controller = new LinkController();
-            $result = $controller->storePost($request, $post);
+            $result = $controller->storePost($request, $post)->getData(true);
 
-            if (isset($result['error'])){
+            if (isset($result['error'])) {
                 return response()->json($result, 400);
             }
         }
 
-        if($request->hasFile('files')){
+        if ($request->hasFile('files')) {
             $controller = new FileController();
-            $result = $controller->storePost($request, $post)->getContent();
+            $result = $controller->storePost($request, $post)->getContent(true);
 
-            if (isset($result['error'])){
+            if (isset($result['error'])) {
                 return response()->json($result, 400);
             }
         }
@@ -75,9 +76,9 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post['links'] = Post_link::all()->where('post_id', $post->id);
-        $post['files'] = Post_file::all()->where('post_id', $post->id);
-        $post['comments'] = $post->getComments();
+        $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
+        $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
+        $post['comments'] = array_values($post->getComments()->toArray());
 
         return response()->json($post);
     }
@@ -101,9 +102,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        Storage::deleteDirectory("posts/".$post->id);
+        Storage::deleteDirectory("posts/" . $post->id);
         $post->delete();
         return response()->json(['success' => 'post successfully deleted']);
     }
-
 }

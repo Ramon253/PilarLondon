@@ -50,10 +50,11 @@ class UserController extends Controller
             $identifier['field'] => $identifier['validation'],
             'password' => 'required'
         ]);
+
         $remmberMe = isset($request->remember_me);
 
 
-        if (auth()->attempt($formData, $remmberMe)) {
+        if (auth()->attempt($formData, $remmberMe, $remmberMe)) {
 
             session()->regenerate();
             return response()->json([
@@ -80,9 +81,11 @@ class UserController extends Controller
 
     public function show(Request $request)
     {
+        $user = User::find(auth()->id());
+        $user['role'] = $user->getRol();
 
         $response = [
-            "user" => auth()->user()
+            "user" => $user
         ];
 
         if ($request->has('student'))

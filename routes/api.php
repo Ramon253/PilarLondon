@@ -77,7 +77,7 @@ Route::controller(GroupController::class)->group(function () {
 
 Route::controller(PostController::class)->group(function () {
 
-    Route::get('posts', 'index');
+    Route::get('posts', 'index')->middleware(['auth:sanctum']);
     Route::get('post/{post}', 'show');
 
     Route::post('group/{group}/post', 'store');
@@ -85,7 +85,7 @@ Route::controller(PostController::class)->group(function () {
     Route::delete('post/{post}', 'destroy');
 
     Route::put('post/{post}', 'update');
-})->middleware(['auth:sanctum']);
+});
 
 Route::controller(AssignmentController::class)->group(function () {
 
@@ -120,7 +120,7 @@ Route::controller(FileController::class)->group(function () {
     Route::get('solution/file/{solution_file}', 'showSolution');
 
     Route::get('assignment/file/{assignment_file}/get', 'getAssignment');
-    Route::get('post/file/{post_file}/get', 'getPost');
+    Route::get('post/file/{post_file}/get', 'getPost')->middleware(['auth:sanctum']);
     Route::get('solution/file/{solution_file}/get', 'getSolution');
 
     Route::get('assignment/file/{assignment_file}/download', 'downloadAssignment');
