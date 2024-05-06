@@ -19,7 +19,7 @@ class Post extends Model
     public function getComments()
     {
         return self::query()
-            ->select('post_comments.*', 'users.name')
+            ->select('post_comments.*', 'users.name as user_name')
             ->join('users', 'Post_comments.user_id', '=', 'users.id')
             ->from('post_comments')
             ->where('Post_comments.post_id', $this->id)

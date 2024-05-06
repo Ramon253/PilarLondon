@@ -78,6 +78,11 @@ class UserController extends Controller
     /**
      * Shows
      */
+    public function profilePicture(User $user){
+        if (Student::all()->where('user_id' , $user->id)->first()){
+            return
+        }
+    }
 
     public function show(Request $request)
     {

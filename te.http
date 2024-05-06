@@ -24,7 +24,7 @@ Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
 ###
 
 
-GET http://localhost:8000/api/post/4
+GET http://localhost:8000/api/post/1
 Content-Type: application/json
 Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8
 
