@@ -40,7 +40,7 @@ Route::controller(UserController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('login-token', 'login_token');
 
-    Route::post('logout', 'logout')->middleware('auth:sanctum');
+    Route::post('logout', 'logout');
     Route::post('activate', 'activate')->middleware('auth:sanctum');
     Route::post('verify', 'verify')->middleware('auth:sanctum');
 });
@@ -77,7 +77,7 @@ Route::controller(GroupController::class)->group(function () {
 
 Route::controller(PostController::class)->group(function () {
 
-    Route::get('posts', 'index')->middleware(['auth:sanctum']);
+    Route::get('posts', 'index')->middleware('auth:sanctum');
     Route::get('post/{post}', 'show');
 
     Route::post('group/{group}/post', 'store');

@@ -48,7 +48,7 @@ Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
 
 
 ###
-POST http://localhost:8000/api/group/9/post
+POST http://localhost:8000/api/group/1/post
 Accept: application/json
 Authorization: 1|KNXyOQxNlGEnRT1Qmp2FMUDevIBrcVYndcvnPFjk4ba08cc2
 Content-Type: multipart/form-data; boundary=boundary
@@ -78,7 +78,7 @@ Prueba3
 --boundary
 Content-Disposition: form-data; name="description"
 
-     Hola ue tal estan ustedes
+     Hola ue tal estan ustedes asd, asd+as Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere facilis in nemo quibusdam quisquam saepe sunt! Consectetur consequuntur corporis culpa error et excepturi illum ipsam ipsum libero nisi non qui quia quisquam repudiandae sed sint suscipit temporibus unde voluptas, voluptatem? A animi dolore dolores et harum magni, numquam officia quaerat quas sapiente tempore vitae! Amet aperiam architecto debitis distinctio ducimus eius eos eveniet exercitationem maiores modi molestias neque nesciunt officia quas qui quisquam, soluta tempore vero voluptas voluptatibus! Commodi ipsam labore quae sint soluta. Dolores esse, facilis iusto quod rem repellendus reprehenderit soluta temporibus. Amet illo ipsum modi necessitatibus repellat totam. Asperiores aut ea excepturi illo molestiae nesciunt nisi optio porro? Cupiditate dolores dolorum eius laborum libero quam quasi quis!
 --boundary
 Content-Disposition: form-data; name="dead_line"
 

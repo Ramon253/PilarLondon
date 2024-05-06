@@ -29,7 +29,7 @@ class PostController extends Controller
         return response()->json(Post::all()->map(function ($post) {
             $post['links'] = array_values (Post_link::all()->where('post_id', $post->id)->toArray());
             $post['files'] = array_values (Post_file::all()->where('post_id', $post->id)->toArray());
-            
+            $post['group_name'] = Group::find($post->group_id)->name;
             return $post;
         }));
     }
@@ -79,6 +79,7 @@ class PostController extends Controller
         $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
         $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
         $post['comments'] = array_values($post->getComments()->toArray());
+        $post['group_name'] = Group::find($post->group_id)->name;
 
         return response()->json($post);
     }
