@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Teacher;
 use App\Mail\auth as MailAuth;
 use App\Models\Group;
 use App\Models\Join_code;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\ItemNotFoundException;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
 use PHPUnit\Framework\MockObject\Builder\Stub;
 
@@ -75,12 +78,38 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+
     /**
      * Shows
      */
     public function profilePicture(User $user){
         if (Student::all()->where('user_id' , $user->id)->first()){
             return
+        }
+    }
+
+    public function profilePic(User $user)
+    {
+
+        try {
+
+            $teacher = Teacher::all()->where('user_id', $user->id)->firstOrFail();
+            if ($teacher->profile_photo === null || !$teacher->profile_photo) {
+                return file_get_contents( public_path('assets/defaultProfile.png'));
+            }
+            return Storage::get($teacher->profilePic);
+        } catch (ItemNotFoundException $e) {
+        }
+
+        try {
+            $student = Student::all()->where('user_id', $user->id)->firstOrFail();
+            if ($student->profile_photo === null) {
+                return file_get_contents( public_path('assets/defaultProfile.png'));
+            }
+            return Storage::get($student->profilePic);
+        } catch (ItemNotFoundException $e) {
+            return file_get_contents( public_path('assets/defaultProfile.png'));
         }
     }
 
