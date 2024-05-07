@@ -83,17 +83,10 @@ class UserController extends Controller
     /**
      * Shows
      */
-    public function profilePicture(User $user){
-        if (Student::all()->where('user_id' , $user->id)->first()){
-            return
-        }
-    }
 
     public function profilePic(User $user)
     {
-
         try {
-
             $teacher = Teacher::all()->where('user_id', $user->id)->firstOrFail();
             if ($teacher->profile_photo === null || !$teacher->profile_photo) {
                 return file_get_contents( public_path('assets/defaultProfile.png'));
