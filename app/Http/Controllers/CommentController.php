@@ -89,7 +89,7 @@ class CommentController extends Controller
         $comment = $request->validate([
             'content' => ['required', 'string'],
             'public' => ['boolean'],
-            'parent_id' => [Rule::exists('Assignment_comments', 'id')]
+            'parent_id' => [Rule::exists($table. '_comments', 'id')]
         ]);
 
         $comment['user_id'] = auth()->id();

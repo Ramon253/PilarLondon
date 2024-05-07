@@ -35,6 +35,7 @@ use function Pest\Laravel\json;
 
 Route::controller(UserController::class)->group(function () {
     Route::get('user', 'show')->middleware('auth:sanctum');
+    Route::get('user/{user}/profile-picture', 'profilePic');
 
     Route::post('user', 'store');
     Route::post('login', 'login');
