@@ -29,12 +29,17 @@ class PostController extends Controller
      */
     public function index()
     {
-        return response()->json(Post::all()->map(function ($post) {
-            $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
-            $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
-            $post['group_name'] = Group::find($post->group_id)->name;
-            return $post;
-        }));
+        $groups = Group::all()->map(function ($group) {
+            return ['id' => $group->id, 'name' => $group->name];
+        });
+        return response()->json([
+            'groups' => $groups,
+            'posts' => Post::all()->map(function ($post) {
+                $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
+                $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
+                $post['group_name'] = Group::find($post->group_id)->name;
+                return $post;
+            })]);
     }
 
     /**
@@ -91,11 +96,11 @@ class PostController extends Controller
 
         if (User::find(auth()->id())->getRol() !== 'teacher') {
             $yourComments = $comments->filter(
-                fn ($comment) => $comment->user_id === auth()->id()
+                fn($comment) => $comment->user_id === auth()->id()
             )->pluck('id')->toArray();
 
             $comments = $comments->filter(
-                fn ($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
+                fn($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
             );
         }
 
