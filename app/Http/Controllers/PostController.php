@@ -39,7 +39,8 @@ class PostController extends Controller
                 $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
                 $post['group_name'] = Group::find($post->group_id)->name;
                 return $post;
-            })]);
+            })
+        ]);
     }
 
     /**
@@ -48,12 +49,17 @@ class PostController extends Controller
     public function store(Request $request, Group $group)
     {
         $request['group_id'] = $group->id;
-        $post = $request->validate([
-            'name' => ['required', 'string'],
-            'subject' => ['required', 'string'],
-            'description' => ['string'],
-            'group_id' => ['required', Rule::exists('groups', 'id')]
-        ]);
+        return $request->post;
+        if ($request->has('post')) {
+
+        } else {
+            $post = $request->validate([
+                'name' => ['required', 'string'],
+                'subject' => ['string'],
+                'description' => ['string'],
+                'group_id' => ['required', Rule::exists('groups', 'id')]
+            ]);
+        }
 
         $post = Post::create($post);
 
@@ -96,11 +102,11 @@ class PostController extends Controller
 
         if (User::find(auth()->id())->getRol() !== 'teacher') {
             $yourComments = $comments->filter(
-                fn($comment) => $comment->user_id === auth()->id()
+                fn ($comment) => $comment->user_id === auth()->id()
             )->pluck('id')->toArray();
 
             $comments = $comments->filter(
-                fn($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
+                fn ($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
             );
         }
 
