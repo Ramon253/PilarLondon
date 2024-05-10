@@ -49,17 +49,14 @@ class PostController extends Controller
     public function store(Request $request, Group $group)
     {
         $request['group_id'] = $group->id;
-        return $request->post;
-        if ($request->has('post')) {
 
-        } else {
-            $post = $request->validate([
-                'name' => ['required', 'string'],
-                'subject' => ['string'],
-                'description' => ['string'],
-                'group_id' => ['required', Rule::exists('groups', 'id')]
-            ]);
-        }
+        $post = $request->validate([
+            'name' => ['required', 'string'],
+            'subject' => ['string'],
+            'description' => ['string'],
+            'group_id' => ['required', Rule::exists('groups', 'id')]
+        ]);
+
 
         $post = Post::create($post);
 
@@ -112,6 +109,11 @@ class PostController extends Controller
 
         $post['comments'] = array_values($comments->toArray());
         $post['group_name'] = Group::find($post->group_id)->name;
+
+        $post['groups'] = Group::all()->map(function ($group) {
+            return ['id' => $group->id, 'name' => $group->name];
+        });
+        
         return response()->json($post);
     }
 
