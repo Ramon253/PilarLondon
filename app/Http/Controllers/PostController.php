@@ -113,7 +113,7 @@ class PostController extends Controller
         $post['groups'] = Group::all()->map(function ($group) {
             return ['id' => $group->id, 'name' => $group->name];
         });
-        
+
         return response()->json($post);
     }
 
@@ -126,8 +126,9 @@ class PostController extends Controller
             'name' => ['string'],
             'subject' => ['string'],
             'description' => ['string'],
+            'group_id' => [Rule::exists('groups', 'id')]
         ]);
-        $post->update($postData);
+        $updatedPost =  $post->update($postData);
         return response()->json(['success' => 'post successfully updated']);
     }
 

@@ -51,13 +51,12 @@ class UserController extends Controller
 
         $formData = $request->validate([
             $identifier['field'] => $identifier['validation'],
-            'password' => 'required'
+            'password' => 'required',
+
         ]);
+        $rememberMe = $request['remember_me'];
 
-        $remmberMe = isset($request->remember_me);
-
-
-        if (auth()->attempt($formData, $remmberMe, $remmberMe)) {
+        if (auth()->attempt($formData, $rememberMe)) {
 
             session()->regenerate();
             return response()->json([
