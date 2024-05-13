@@ -23,15 +23,18 @@ class LinkController extends Controller
      * Shows
      */
 
-    public function showAssignment(Assignment_link $assignment_link){
+    public function showAssignment(Assignment_link $assignment_link)
+    {
         return response()->json($assignment_link);
     }
 
-    public function showPost(Post_link $post_link){
+    public function showPost(Post_link $post_link)
+    {
         return response()->json($post_link);
     }
 
-    public function showSolution(Solution_link $solution_link){
+    public function showSolution(Solution_link $solution_link)
+    {
         return response()->json($solution_link);
     }
 
@@ -85,10 +88,11 @@ class LinkController extends Controller
         ]);
 
         foreach ($links['links'] as $link) {
-            $link[$table. '_id'] = $id;
+            $link[$table . '_id'] = $id;
             $model::create($link);
         }
-        return response()->json(['success' => 'Links successfully uploaded', 'link' => $links], 200);
+        
+        return response()->json(['success' => 'Links successfully uploaded', 'links' => array_values($model::all()->where($table . '_id', $id)->toArray())], 200);
     }
 
     private function destroy(Model $object): array

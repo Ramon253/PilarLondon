@@ -143,7 +143,7 @@ class FileController extends Controller
                 'header' =>   $request['header']
             ]);
         }
-        return response()->json(['success' => 'Files successfully uploaded'], 200);
+        return response()->json(['success' => 'Files successfully uploaded', 'files' => array_values($model::all()->where($table . '_id', $id)->toArray())], 200);
     }
 
     private function destroy(Model $object): array
