@@ -158,6 +158,8 @@ Route::controller(CommentController::class)->group(function () {
     Route::get('post/comment/{post_comment}', 'showPost');
     Route::get('solution/comment/{solution_comment}', 'showSolution');
 
+    Route::get('post/{post}/comments', 'indexPost');
+
     Route::post('assignment/{assignment}/comment', 'storeAssignment');
     Route::post('post/{post}/comment', 'storePost')->middleware('auth:sanctum');
     Route::post('solution/{solution}/comment', 'storeSolution');

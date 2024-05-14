@@ -10,6 +10,7 @@ use App\Models\Solution;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\User;
 
 class CommentController extends Controller
 {
@@ -32,6 +33,14 @@ class CommentController extends Controller
         ]);
     }
 
+    /*
+    * Indexes
+    */
+
+    public function indexPost(Post $post)
+    {
+        return response()->json($this->index($post));
+    }
 
     /*
      * Stores
@@ -39,12 +48,12 @@ class CommentController extends Controller
 
     public function storePost(Request $request, Post $post)
     {
-        return $this->store($request, 'post', $post->id, new Post_comment);
+        return $this->store($request, 'post', $post->id, new Post_comment, $post);
     }
 
     public function storeAssignment(Request $request, Assignment $assignment)
     {
-        return $this->store($request, 'assignment', $assignment->id, new Assignment_comment);
+        return $this->store($request, 'assignment', $assignment->id, new Assignment_comment, $assignment);
     }
 
     public function storeRespone(Request $request, Solution $response)
@@ -70,26 +79,26 @@ class CommentController extends Controller
      * Destroys
      */
 
-    public function destroyPost(Request $request, Post_comment $post_comment)
+    public function destroyPost(Post_comment $post_comment)
     {
-        return $this->destroy($post_comment);
+        return $this->destroy($post_comment, Post::find($post_comment->post_id));
     }
 
     public function destroyAssignment(Request $request, Assignment_comment $assignment_comment)
     {
-        return $this->destroy($assignment_comment);
+        return $this->destroy($assignment_comment, Assignment::find($assignment_comment->assignment_id));
     }
 
 
     /**
      * Privates
      */
-    private function store(Request $request, string $table, string $id, Model $model)
+    private function store(Request $request, string $table, string $id, Model $model, Model $tableModel)
     {
         $comment = $request->validate([
             'content' => ['required', 'string'],
             'public' => ['boolean'],
-            'parent_id' => [Rule::exists($table. '_comments', 'id')]
+            'parent_id' => [Rule::exists($table . '_comments', 'id')]
         ]);
 
         $comment['user_id'] = auth()->id();
@@ -97,7 +106,7 @@ class CommentController extends Controller
 
         $result = $model->create($comment);
 
-        return response()->json(['success' => 'Comment successfuly created', 'comment' => $result]);
+        return response()->json(['success' => 'Comment successfuly created', 'comments' => $this->index($tableModel)]);
     }
 
     public function update(Request $request, Model $model)
@@ -115,13 +124,40 @@ class CommentController extends Controller
         return response()->json(['error' => 'Comment could not be updated']);
     }
 
-    public function destroy(Model $model)
+    public function destroy(Model $model, Model $fromModel)
     {
         $result = $model->delete();
 
         if ((int) $result === 1) {
-            return response()->json(['success' => 'Comment successfully deleted']);
+            return response()->json(
+                [
+                    'success' => 'Comment successfully deleted',
+                    'comments' => $this->index($fromModel)
+                ]
+            );
         }
         return response()->json(['error' => 'Comment could not be deleted']);
+    }
+
+    public function index($model)
+    {
+        $comments = $model->getComments()->map(
+            function ($comment) {
+                $comment['role'] = User::find($comment->user_id)->getRol();
+                return $comment;
+            }
+        );
+
+        if (User::find(auth()->id())->getRol() !== 'teacher') {
+            $yourComments = $comments->filter(
+                fn ($comment) => $comment->user_id === auth()->id()
+            )->pluck('id')->toArray();
+
+            $comments = $comments->filter(
+                fn ($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
+            );
+        }
+
+        return $comments;
     }
 }

@@ -87,27 +87,12 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        $commentController = new CommentController();
+
         $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
         $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
+        $post['comments'] = array_values($commentController->index($post)->toArray());
 
-        $comments = $post->getComments()->map(
-            function ($comment) {
-                $comment['role'] = User::find($comment->user_id)->getRol();
-                return $comment;
-            }
-        );
-
-        if (User::find(auth()->id())->getRol() !== 'teacher') {
-            $yourComments = $comments->filter(
-                fn ($comment) => $comment->user_id === auth()->id()
-            )->pluck('id')->toArray();
-
-            $comments = $comments->filter(
-                fn ($comment) => $comment->public || $comment->user_id === auth()->id() || in_array($comment->parent_id, $yourComments)
-            );
-        }
-
-        $post['comments'] = array_values($comments->toArray());
         $post['group_name'] = Group::find($post->group_id)->name;
 
         $post['groups'] = Group::all()->map(function ($group) {

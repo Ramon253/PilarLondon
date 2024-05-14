@@ -128,6 +128,7 @@ class FileController extends Controller
                     break;
                 }
             }
+
             if (!$isAllowed) {
                 return response()->json(['error' => 'Invalid file type']);
             }
@@ -143,7 +144,12 @@ class FileController extends Controller
                 'header' =>   $request['header']
             ]);
         }
-        return response()->json(['success' => 'Files successfully uploaded', 'files' => array_values($model::all()->where($table . '_id', $id)->toArray())], 200);
+        return response()->json(
+            [
+                'success' => 'Files successfully uploaded',
+                'files' => array_values($model::all()->where($table . '_id', $id)->toArray())
+            ], 200
+        );
     }
 
     private function destroy(Model $object): array
