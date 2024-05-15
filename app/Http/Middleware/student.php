@@ -39,9 +39,9 @@ class Student
             $resquest['student'] = ModelsStudent::find($id['student_id']);
             return $next($request);
         }
-
         $user_id =  auth()->id();
         try {
+
             $student = ModelsStudent::where('user_id', $user_id)->firstOrFail();
         }catch (ModelNotFoundException $exception){
             $teacher = $this->isTeacher();
@@ -49,6 +49,7 @@ class Student
                 $request['teacher'] = $teacher['teacher'];
                 return $next($request);
             }
+
             return response()->json([
                 'error' => 'You need to be an student to access that route'
             ], 404);
@@ -66,7 +67,7 @@ class Student
         try {
             $teacher = Teacher::all()->where('user_id', auth()->id())->firstOrFail();
             return ['isTeacher' => true, 'teacher' => $teacher];
-        } catch (ModelNotFoundException $e) {
+        } catch (ItemNotFoundException $e) {
             return ['isTeacher' => false];
         }
     }

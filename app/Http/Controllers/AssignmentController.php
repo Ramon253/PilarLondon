@@ -37,20 +37,30 @@ class AssignmentController extends Controller
 
     public function show(Assignment $assignment, Request $request)
     {
+        $assignment['groups'] = array_values( Group::all()->map(function ($group){
+           $result['name'] = $group['name'];
+           $result['id'] = $group['id'];
+           return $result;
+        })->toArray());
 
-        $assignment['files'] = Assignment_file::all()->where('assignment_id', $assignment->id);
-        $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
-        $assignment['comments'] = Assignment_comment::all()->where('assignment_id', $assignment->id);
+        $assignment['files'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
+        $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
+        $assignment['comments'] = array_values(Assignment_comment::all()->where('assignment_id', $assignment->id)->toArray());
+        $assignment['group_name'] = Group::find($assignment->group_id)->name;
+        $solution = [];
+        if (!$request['teacher']) {
+            $solution = Solution::all()
+                ->where('assignment_id', $assignment->id)
+                ->where('student_id', $request['student']->id)
+                ->first();
+        } else {
+            $solution = Solution::all()->where('assignment_id', $assignment->id);
+        }
 
-        $solution = Solution::all()
-            ->where('assignment_id', $assignment->id)
-            ->where('student_id', $request['student']->id)
-            ->first();
-
-        $assignment['solution'] = ($solution) ? [
+        $assignment['solution'] = (count($solution) !== 0) ? [
             'body' => $solution,
-            'solution_files' => Solution_file::all()->where('solution_id', $solution->id),
-            'solution_links' => Solution_link::all()->where('solution_id', $solution->id)
+            'solution_files' => array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray())   ,
+            'solution_links' => array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray())
         ] : [];
 
 
