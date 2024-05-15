@@ -18,7 +18,12 @@ use App\Http\Controllers\UserController;
 /*
  *
  */
-Route::view('/', 'testController');
+/*
+ *
+ */
+Route::get('', function (){
+    return response()->json(['hola' => 'mundo']);
+});
 /*Route::view('/login', 'user.login');
 Route::view('/', 'welcome');
 

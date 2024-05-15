@@ -53,6 +53,8 @@ Route::controller(StudentController::class)->group(function () {
     Route::middleware(['auth:sanctum', 'student'])->group(function () {
 
         Route::get('dashboard', 'dashboard');
+        Route::get('dashboard/post', 'postsDashboard');
+        Route::get('dashboard/assignment', 'assignmentsDashboard');
         Route::get('student', 'show');
         Route::put('student', 'update');
         Route::delete('student', 'destroy');
@@ -81,6 +83,7 @@ Route::controller(PostController::class)->group(function () {
     Route::get('posts', 'index')->middleware('auth:sanctum');
     Route::get('post/{post}', 'show');
 
+    Route::post('post', 'storePublic');
     Route::post('group/{group}/post', 'store');
 
     Route::delete('post/{post}', 'destroy');
@@ -158,7 +161,7 @@ Route::controller(CommentController::class)->group(function () {
     Route::get('post/comment/{post_comment}', 'showPost');
     Route::get('solution/comment/{solution_comment}', 'showSolution');
 
-    Route::get('post/{post}/comments', 'indexPost');
+    Route::get('post/{post}/comments', 'indexPost')->middleware(['auth:sanctum']);
 
     Route::post('assignment/{assignment}/comment', 'storeAssignment');
     Route::post('post/{post}/comment', 'storePost')->middleware('auth:sanctum');

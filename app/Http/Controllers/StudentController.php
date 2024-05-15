@@ -78,6 +78,30 @@ class StudentController extends Controller
         ]);
     }
 
+    public function postsDashboard(Request $request)
+    {
+        if ($request['teacher']){
+            return response()->json([
+                'posts' => array_values(Post::all()->where('group_id', '<>', null)->toArray()),
+                'groups' => array_values(Group::all()->map(function ($group){
+                    $result['id'] = $group['id'];
+                    $result['name'] = $group['name'];
+                    return $result;
+                })->toArray())
+            ]);
+        }
+        $student = $request['student'];
+        $groups = $student->getGroups();
+        $posts = Post::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']));
+        return response()->json([
+            'groups' => $groups,
+            'posts' => $posts
+        ]);
+    }
+    public function assignmentsDashboard()
+    {
+
+    }
     /**
      * Store
      */

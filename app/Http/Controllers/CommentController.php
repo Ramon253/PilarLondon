@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Assignment;
 use App\Models\Assignment_comment;
 use App\Models\Post;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -106,7 +108,12 @@ class CommentController extends Controller
 
         $result = $model->create($comment);
 
-        return response()->json(['success' => 'Comment successfuly created', 'comments' => $this->index($tableModel)]);
+        $comments = $this->index($tableModel);
+        
+        return response()->json([
+            'success' => 'Comment successfuly created',
+            'comments' => $comments
+        ]);
     }
 
     public function update(Request $request, Model $model)
@@ -158,6 +165,6 @@ class CommentController extends Controller
             );
         }
 
-        return $comments;
+        return array_values((gettype($comments) !== 'array') ? $comments->toArray() : $comments);
     }
 }

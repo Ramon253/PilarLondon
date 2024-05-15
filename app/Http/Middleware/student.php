@@ -10,6 +10,7 @@ use App\Models\Teacher;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Validation\Rule;
 use Pest\Plugins\Retry;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,13 +24,15 @@ class Student
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $request['student'] = false;
+        $request['teacher'] = false;
 
         if ($request->has('student_id')) {
             $id = $request->validate([
                 'student_id' => ['required', Rule::exists('id', 'students')]
             ]);
 
-            if (!$this->isTeacher() && !$this->isParent($request)) {
+            if (!$this->isTeacher() && !$this->isParent($request)['isParent']) {
                 return response()->json(['error' => 'you are not allowed to access that']);
             }
 
@@ -38,7 +41,18 @@ class Student
         }
 
         $user_id =  auth()->id();
-        $student = ModelsStudent::where('user_id', $user_id)->firstOrFail();
+        try {
+            $student = ModelsStudent::where('user_id', $user_id)->firstOrFail();
+        }catch (ModelNotFoundException $exception){
+            $teacher = $this->isTeacher();
+            if ($teacher['isTeacher']){
+                $request['teacher'] = $teacher['teacher'];
+                return $next($request);
+            }
+            return response()->json([
+                'error' => 'You need to be an student to access that route'
+            ], 404);
+        }
 
         $request['student'] = $student;
         return $next($request);
@@ -47,24 +61,24 @@ class Student
     /**
      * Privates
      */
-    private function isTeacher(): bool
+    private function isTeacher(): array
     {
         try {
             $teacher = Teacher::all()->where('user_id', auth()->id())->firstOrFail();
-            return true;
+            return ['isTeacher' => true, 'teacher' => $teacher];
         } catch (ModelNotFoundException $e) {
-            return false;
+            return ['isTeacher' => false];
         }
     }
 
-    private function isParent(Request $request): bool
+    private function isParent(Request $request): array
     {
         try {
             $parent = Parents::all()->where('user_id', auth()->id())->firstOrFail();
             $parent_student = Parent_student::findOrFail([$request['student_id'], $parent->id]);
-            return true;
+            return ['isParent' => true,'parent' => $parent_student];
         } catch (ModelNotFoundException $e) {
-            return false;
+            return ['isParent' => false];
         }
     }
 }

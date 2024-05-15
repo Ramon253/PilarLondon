@@ -48,7 +48,7 @@ Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
 
 
 ###
-POST http://localhost:8000/api/group/1/post
+POST http://localhost:8000/api/group/1/assignment
 Accept: application/json
 Authorization: 1|KNXyOQxNlGEnRT1Qmp2FMUDevIBrcVYndcvnPFjk4ba08cc2
 Content-Type: multipart/form-data; boundary=boundary
@@ -64,9 +64,9 @@ Content-Type: text/plain
 Hola
 --boundary
 Content-Disposition: form-data; name="files[2]"; filename="irene.jpeg"
-Content-Type: image/jpg
+Content-Type: image/png
 
-< C:\Users\pcram\Downloads\05-IRENEPINILLANIETO.jpg
+< C:\Users\jose.gallardo\Downloads\icons8-user-60.png
 --boundary
 Content-Disposition: form-data; name="subject"
 

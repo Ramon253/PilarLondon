@@ -11,11 +11,15 @@ use App\Models\Post_file;
 use App\Models\Post_link;
 use App\Models\User;
 use Egulias\EmailValidator\Parser\Comment;
+use http\Env\Response;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use mysql_xdevapi\CollectionModify;
 use PhpParser\Node\Expr\Cast\String_;
 use Illuminate\Support\Str;
 
@@ -34,12 +38,11 @@ class PostController extends Controller
         });
         return response()->json([
             'groups' => $groups,
-            'posts' => Post::all()->map(function ($post) {
+            'posts' => array_values(Post::all()->where('group_id' , null)->map(function ($post) {
                 $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
                 $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
-                $post['group_name'] = Group::find($post->group_id)->name;
                 return $post;
-            })
+            })->toArray())
         ]);
     }
 
@@ -56,31 +59,19 @@ class PostController extends Controller
             'description' => ['string'],
             'group_id' => ['required', Rule::exists('groups', 'id')]
         ]);
-
-
-        $post = Post::create($post);
-
-        if ($request->has('links')) {
-            $controller = new LinkController();
-            $result = $controller->storePost($request, $post)->getData(true);
-
-            if (isset($result['error'])) {
-                return response()->json($result, 400);
-            }
-        }
-
-        if ($request->hasFile('files')) {
-            $controller = new FileController();
-            $result = $controller->storePost($request, $post)->getContent(true);
-
-            if (isset($result['error'])) {
-                return response()->json($result, 400);
-            }
-        }
-
-        return response()->json(['message' => 'post created successfully']);
+        return $this->savePost($request, $post);
     }
+    public function storePublic(Request $request){
 
+        $post = $request->validate([
+            'name' => ['required', 'string'],
+            'subject' => ['string'],
+            'description' => ['string']
+        ]);
+        $post['group_id'] = null;
+
+        return $this->savePost($request, $post);
+    }
 
     /*
      * Show
@@ -91,9 +82,11 @@ class PostController extends Controller
 
         $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
         $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
-        $post['comments'] = array_values($commentController->index($post)->toArray());
+        $post['comments'] = array_values($commentController->index($post));
 
-        $post['group_name'] = Group::find($post->group_id)->name;
+        try {
+            $post['group_name'] = Group::findOrFail($post->group_id)->name;
+        }catch (ModelNotFoundException $e){}
 
         $post['groups'] = Group::all()->map(function ($group) {
             return ['id' => $group->id, 'name' => $group->name];
@@ -126,4 +119,34 @@ class PostController extends Controller
         $post->delete();
         return response()->json(['success' => 'post successfully deleted']);
     }
+
+
+    /*
+     * Privates
+     * */
+
+    private function savePost(Request $request, $post){
+        $post = Post::create($post);
+
+        if ($request->has('links')) {
+            $controller = new LinkController();
+            $result = $controller->storePost($request, $post)->getData(true);
+
+            if (isset($result['error'])) {
+                return response()->json($result, 400);
+            }
+        }
+
+        if ($request->hasFile('files')) {
+            $controller = new FileController();
+            $result = $controller->storePost($request, $post)->getContent(true);
+
+            if (isset($result['error'])) {
+                return response()->json($result, 400);
+            }
+        }
+
+        return response()->json(['message' => 'post created successfully']);
+    }
+
 }
