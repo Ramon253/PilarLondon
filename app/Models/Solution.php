@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use function PHPUnit\Framework\returnSelf;
 
 class Solution extends Model
 {
@@ -15,4 +16,6 @@ class Solution extends Model
         'student_id',
         'assignment_id'
     ];
+
+
 }

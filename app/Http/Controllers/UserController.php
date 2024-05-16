@@ -87,20 +87,22 @@ class UserController extends Controller
         try {
             $teacher = Teacher::all()->where('user_id', $user->id)->firstOrFail();
             if ($teacher->profile_photo === null || !$teacher->profile_photo) {
-                return file_get_contents( public_path('assets/defaultProfile.png'));
+                return file_get_contents(public_path('assets/defaultProfile.png'));
             }
             return Storage::get($teacher->profilePic);
         } catch (ItemNotFoundException $e) {
         }
-
         try {
             $student = Student::all()->where('user_id', $user->id)->firstOrFail();
             if ($student->profile_photo === null) {
-                return file_get_contents( public_path('assets/defaultProfile.png'));
+                return file_get_contents(public_path('assets/defaultProfile.png'));
             }
-            return Storage::get($student->profile_photo);
+            if (Storage::has($student->profile_photo)) {
+                return Storage::get($student->profile_photo);
+            } else
+                return file_get_contents(public_path('assets/defaultProfile.png'));
         } catch (ItemNotFoundException $e) {
-            return file_get_contents( public_path('assets/defaultProfile.png'));
+            return file_get_contents(public_path('assets/defaultProfile.png'));
         }
     }
 
@@ -148,7 +150,7 @@ class UserController extends Controller
         if (session()->missing('verificationCode')) {
             return response()->json('error', 'There it is no login attempt in this session');
         }
-        if (session('verificationCode') !== (int) $code) {
+        if (session('verificationCode') !== (int)$code) {
             return response()->json('error', 'Incorrect code');
         }
 
@@ -181,6 +183,7 @@ class UserController extends Controller
 
         return response()->json(['success' => 'account successfully activated']);
     }
+
     /**
      * Privates
      */
@@ -197,6 +200,7 @@ class UserController extends Controller
         }
         return ['field' => $field, 'validation' => $validation, 'value' => $value];
     }
+
     private static function sendMail($user)
     {
         $code = random_int(100000, 999999);

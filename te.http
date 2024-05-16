@@ -29,15 +29,14 @@ Content-Type: application/json
 Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8
 
 ###
-POST http://localhost:8000/api/user
+POST http://localhost:8000/api/login-token
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
 
 {
     "join_code" : "tHF9ftw1FyD9vDCsF1cuzMTQuO9QzAFJhvBb5e53efU7j3Msq8",
-    "name" : "ramon",
-    "email" : "abichiela@gmmail",
+    "name" : "pepe",
     "password" : "123456789.",
     "password_confirmation" : "123456789.",
     "full_name" : "jose ramon",
@@ -54,7 +53,7 @@ Authorization: 1|KNXyOQxNlGEnRT1Qmp2FMUDevIBrcVYndcvnPFjk4ba08cc2
 Content-Type: multipart/form-data; boundary=boundary
 User-Agent: IntelliJ HTTP Client/PhpStorm 2024.1.1 RC
 Accept-Encoding: br, deflate, gzip, x-gzip
-Cookie: authToken=5%257CUeYnJAyJYdiP6n5pnZjGdgl8oUgSaYjO9drKcE086c39ad2b
+Cookie: authToken=1|CDa9mr867mjGLefoln7hX2J5n2u6jFTjyE0Al15e3f46f41b
 content-length: 792
 
 --boundary
@@ -64,9 +63,9 @@ Content-Type: text/plain
 Hola
 --boundary
 Content-Disposition: form-data; name="files[2]"; filename="irene.jpeg"
-Content-Type: image/png
+Content-Type: image/jpeg
 
-< C:\Users\jose.gallardo\Downloads\icons8-user-60.png
+< C:\Users\pcram\Downloads\irene.jpeg
 --boundary
 Content-Disposition: form-data; name="subject"
 

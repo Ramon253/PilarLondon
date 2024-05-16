@@ -35,7 +35,7 @@ class ResponseController extends Controller
         $solution = $request->validate([
             'description' => ['string']
         ]);
-        $solution['student_id'] = 1;
+        $solution['student_id'] = 2;
         $solution['assignment_id'] = $assignment->id;
 
         $solution = Solution::create($solution);
@@ -59,11 +59,9 @@ class ResponseController extends Controller
      */
     public function show(Solution $solution)
     {
-        return response()->json([
-            'solution' => $solution,
-            'links' => Solution_link::all()->where('solution_id', $solution->id),
-            'files' => Solution_file::all()->where('solution_id', $solution->id)
-        ]);
+        $solution['links'] = ['links' => Solution_link::all()->where('solution_id', $solution->id)];
+        $solution['files'] = ['files' => Solution_file::all()->where('solution_id', $solution->id)];
+        return response()->json($solution);
     }
 
     /**
@@ -72,10 +70,10 @@ class ResponseController extends Controller
     public function update(Request $request, Solution $solution)
     {
         $newSolution = $request->validate(['description' => ['string']]);
-    
+
         $result = $solution->update($newSolution);
 
-        return ((int) $result === 1) ? response()->json(['success' => 'Response successfully updated', 'solution' => $solution]) : response()->json(['error' => 'Error updating ']);
+        return ((int)$result === 1) ? response()->json(['success' => 'Response successfully updated', 'solution' => $solution]) : response()->json(['error' => 'Error updating ']);
     }
 
     /**
@@ -83,7 +81,7 @@ class ResponseController extends Controller
      */
     public function destroy(Solution $solution)
     {
-        Storage::deleteDirectory('solutions/'.$solution->id);
+        Storage::deleteDirectory('solutions/' . $solution->id);
         $solution->delete();
 
         return response()->json(['success' => 'Response successfully deleted']);
@@ -94,20 +92,20 @@ class ResponseController extends Controller
      * Grade function
      */
 
-     public function grade(Request $request, Solution $solution)
-     {  
+    public function grade(Request $request, Solution $solution)
+    {
         $grade = $request->validate([
-            'note' => ['required','numeric', 'decimal:0,2', 'min:1', 'max:10'],
+            'note' => ['required', 'numeric', 'decimal:0,2', 'min:1', 'max:10'],
         ]);
         $result = $solution->update($grade);
 
 
-        return ((int) $result === 1)? response()->json([
+        return ((int)$result === 1) ? response()->json([
             'success' => 'Solution graded successfully'
-        ]):
-        response()->json([
-            'error' => 'Error grading the response'
-        ]);
+        ]) :
+            response()->json([
+                'error' => 'Error grading the response'
+            ]);
 
-     }
+    }
 }

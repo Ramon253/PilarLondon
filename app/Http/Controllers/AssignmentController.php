@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\auth;
 use App\Models\Assignment;
 use App\Http\Controllers\Controller;
-use App\Http\Middleware\Student;
+use App\Models\Student;
 use App\Http\Middleware\studentGroup;
 use App\Models\Assignment_comment;
 use App\Models\Assignment_file;
@@ -38,37 +38,40 @@ class AssignmentController extends Controller
 
     public function show(Assignment $assignment, Request $request)
     {
-        $assignment['groups'] = array_values( Group::all()->map(function ($group){
-           $result['name'] = $group['name'];
-           $result['id'] = $group['id'];
-           return $result;
+        $assignment['groups'] = array_values(Group::all()->map(function ($group) {
+            $result['name'] = $group['name'];
+            $result['id'] = $group['id'];
+            return $result;
         })->toArray());
 
         $assignment['files'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
         $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
         $assignment['comments'] = array_values(Assignment_comment::all()->where('assignment_id', $assignment->id)->toArray());
         $assignment['group_name'] = Group::find($assignment->group_id)->name;
-        $solution = [];
+
+
         if (!$request['teacher']) {
-            $solution =[ Solution::all()
-                ->where('assignment_id', $assignment->id)
-                ->where('student_id', $request['student']->id)
-                ->first() ?? []];
+
+            $solution =
+                Solution::all()
+                    ->where('assignment_id', $assignment->id)
+                    ->where('student_id', $request['student']->id)
+                    ->first();
+            $solution['fileLinks'] = array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray());
+            $solution['links'] = array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray());
+
+            $assignment['solution'] = $solution;
+
         } else {
-            $solution = Solution::all()->where('assignment_id', $assignment->id)->map(
-                function ($solution){
-                    $solution['user_name'] = User::find($solution->user_id)->name;
+            $assignment['solutions'] = Solution::all()->where('assignment_id', $assignment->id)->map(
+                function ($solution) {
+                    $student = Student::find($solution->student_id);
+                    $solution['student_name'] = $student->full_name;
+                    $solution['user_id'] = $student->user_id;
                     return $solution;
                 }
             );
         }
-
-        $assignment['solution'] = (count($solution) !== 0) ? [
-            'body' => $solution,
-            'solution_files' => array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray())   ,
-            'solution_links' => array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray())
-        ] : [];
-
 
         return response()->json($assignment);
     }
