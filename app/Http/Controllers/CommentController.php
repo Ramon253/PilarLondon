@@ -43,6 +43,10 @@ class CommentController extends Controller
     {
         return response()->json($this->index($post));
     }
+    public function indexAssignments(Assignment $assignment)
+    {
+        return response()->json($this->index($assignment));
+    }
 
     /*
      * Stores
@@ -109,7 +113,7 @@ class CommentController extends Controller
         $result = $model->create($comment);
 
         $comments = $this->index($tableModel);
-        
+
         return response()->json([
             'success' => 'Comment successfuly created',
             'comments' => $comments

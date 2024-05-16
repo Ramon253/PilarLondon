@@ -16,6 +16,7 @@ use App\Models\Solution;
 use App\Models\Solution_file;
 use App\Models\Solution_link;
 use App\Models\Student_group;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
@@ -49,12 +50,17 @@ class AssignmentController extends Controller
         $assignment['group_name'] = Group::find($assignment->group_id)->name;
         $solution = [];
         if (!$request['teacher']) {
-            $solution = Solution::all()
+            $solution =[ Solution::all()
                 ->where('assignment_id', $assignment->id)
                 ->where('student_id', $request['student']->id)
-                ->first();
+                ->first() ?? []];
         } else {
-            $solution = Solution::all()->where('assignment_id', $assignment->id);
+            $solution = Solution::all()->where('assignment_id', $assignment->id)->map(
+                function ($solution){
+                    $solution['user_name'] = User::find($solution->user_id)->name;
+                    return $solution;
+                }
+            );
         }
 
         $assignment['solution'] = (count($solution) !== 0) ? [
@@ -119,6 +125,7 @@ class AssignmentController extends Controller
             'name' => ['string'],
             'dead_line' => ['string'],
             'description' => ['string'],
+            'group_id' => [Rule::exists('groups', 'id')]
         ]);
 
         $assignment->update($assignmentData);

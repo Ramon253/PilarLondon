@@ -24,6 +24,10 @@ use App\Http\Controllers\UserController;
 Route::get('', function (){
     return response()->json(['hola' => 'mundo']);
 });
+
+Route::controller(UserController::class)->group(function (){
+   Route::post('login', 'login')->name('login');
+});
 /*Route::view('/login', 'user.login');
 Route::view('/', 'welcome');
 

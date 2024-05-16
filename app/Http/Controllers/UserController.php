@@ -33,9 +33,8 @@ class UserController extends Controller
             $identifier['field'] => $identifier['validation'],
             'password' => 'required'
         ]);
-        $remmberMe = isset($request->remember_me);
 
-        if (auth()->attempt($formData, $remmberMe)) {
+        if (auth()->attempt($formData)) {
             return response()->json([
                 'user' => Auth::user()->createToken('hola')->plainTextToken
             ]);
@@ -99,7 +98,7 @@ class UserController extends Controller
             if ($student->profile_photo === null) {
                 return file_get_contents( public_path('assets/defaultProfile.png'));
             }
-            return Storage::get($student->profilePic);
+            return Storage::get($student->profile_photo);
         } catch (ItemNotFoundException $e) {
             return file_get_contents( public_path('assets/defaultProfile.png'));
         }

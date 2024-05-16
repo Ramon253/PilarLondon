@@ -162,6 +162,7 @@ Route::controller(CommentController::class)->group(function () {
     Route::get('solution/comment/{solution_comment}', 'showSolution');
 
     Route::get('post/{post}/comments', 'indexPost')->middleware(['auth:sanctum']);
+    Route::get('assignment/{assignment}/comments', 'indexAssignments')->middleware(['auth:sanctum']);
 
     Route::post('assignment/{assignment}/comment', 'storeAssignment');
     Route::post('post/{post}/comment', 'storePost')->middleware('auth:sanctum');
