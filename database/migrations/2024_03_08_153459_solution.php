@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('description');
             $table->float('note')->nullable();
 
-            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('assignment_id')->constrained()->cascadeOnUpdate();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('assignment_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
 
             $table->unique(['student_id', 'assignment_id']);
 

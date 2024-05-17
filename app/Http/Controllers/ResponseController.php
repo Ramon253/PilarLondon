@@ -42,12 +42,12 @@ class ResponseController extends Controller
 
         if ($request->has('links')) {
             $controller = new LinkController;
-            $links = $controller->storeSolution($request, $solution);
+            $solution['files'] = $controller->storeSolution($request, $solution);
         }
 
         if ($request->hasFile('files')) {
             $controller = new FileController;
-            $files = $controller->storeSolution($request, $solution);
+            $solution['files'] = $controller->storeSolution($request, $solution);
         }
 
         return response()->json(['success' => 'Response successfully stored', 'solution' => $solution]);

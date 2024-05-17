@@ -95,7 +95,7 @@ class StudentController extends Controller
         $posts = Post::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']));
         return response()->json([
             'groups' => $groups,
-            'posts' => $posts
+            'posts' => array_values($posts->toArray())
         ]);
     }
     public function assignmentsDashboard()

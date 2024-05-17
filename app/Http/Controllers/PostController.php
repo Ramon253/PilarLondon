@@ -105,11 +105,18 @@ class PostController extends Controller
         $postData = $request->validate([
             'name' => ['string'],
             'subject' => ['string'],
-            'description' => ['string'],
-            'group_id' => [Rule::exists('groups', 'id')]
+            'description' => ['string']
         ]);
+        $postData['group_id'] = null;
+        if ($request->group_id !== 'public'){
+            $group = $request->validate([
+                'group_id' => ['required', Rule::exists('groups', 'id')]
+            ]);
+            $postData['group_id'] = $group['group_id'];
+        }
+
         $updatedPost =  $post->update($postData);
-        return response()->json(['success' => 'post successfully updated']);
+        return response()->json(['success' => 'post successfully updated', 'post' => $updatedPost]);
     }
 
     /**
@@ -148,7 +155,7 @@ class PostController extends Controller
             }
         }
 
-        return response()->json(['message' => 'post created successfully']);
+        return response()->json(['message' => 'post created successfully', 'post' => $post]);
     }
 
 }

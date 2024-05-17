@@ -66,14 +66,14 @@ class AssignmentController extends Controller
                 return response()->json($assignment);
             }
         } else {
-            $assignment['solutions'] = Solution::all()->where('assignment_id', $assignment->id)->map(
+            $assignment['solutions'] = array_values( Solution::all()->where('assignment_id', $assignment->id)->map(
                 function ($solution) {
                     $student = Student::find($solution->student_id);
                     $solution['student_name'] = $student->full_name;
                     $solution['user_id'] = $student->user_id;
                     return $solution;
                 }
-            );
+            )->toArray());
         }
 
         return response()->json($assignment);

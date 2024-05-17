@@ -58,10 +58,9 @@ class UserController extends Controller
         if (auth()->attempt($formData, $rememberMe)) {
 
             session()->regenerate();
-            return response()->json([
-                'user' => $request->user(),
-                'success' => 'logged in successfully'
-            ]);
+            return response()->json(
+                 $this->getUserInfo($request),
+            );
         }
 
         return response()->json(['error' => 'Incorrect credentials']);
@@ -108,17 +107,7 @@ class UserController extends Controller
 
     public function show(Request $request)
     {
-        $user = User::find(auth()->id());
-        $user['role'] = $user->getRol();
-
-        $response = [
-            "user" => $user
-        ];
-
-        if ($request->has('student'))
-            $response['student'] = $request['student'];
-
-        return response()->json($response);
+        return response()->json($this->getUserInfo($request));
     }
 
 
@@ -208,5 +197,20 @@ class UserController extends Controller
         session(['user' => $user]);
 
         Mail::to($user->email)->send(new MailAuth($code));
+    }
+
+    private function getUserInfo(Request $request)
+    {
+        $user = User::find(auth()->id());
+        $user['role'] = $user->getRol();
+
+        $response = [
+            "user" => $user
+        ];
+
+        if ($request->has('student'))
+            $response['student'] = $request['student'];
+
+        return $response;
     }
 }
