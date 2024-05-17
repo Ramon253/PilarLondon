@@ -35,7 +35,7 @@ class ResponseController extends Controller
         $solution = $request->validate([
             'description' => ['string']
         ]);
-        $solution['student_id'] = 2;
+        $solution['student_id'] = $request['student']->id;
         $solution['assignment_id'] = $assignment->id;
 
         $solution = Solution::create($solution);

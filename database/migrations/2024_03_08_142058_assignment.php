@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assignments', function (Blueprint $table){
             $table->id();
             $table->string('name');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->dateTime('dead_line')->nullable();
             $table->foreignId('group_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 

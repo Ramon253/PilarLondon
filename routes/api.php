@@ -108,7 +108,7 @@ Route::controller(ResponseController::class)->group(function () {
 
     Route::get('solution/{solution}', 'show');
 
-    Route::post('assignment/{assignment}/response', 'store');
+    Route::post('assignment/{assignment}/response', 'store')->middleware(['auth:sanctum', 'student']);
 
     Route::put('solution/{solution}', 'update');
     Route::put('solution/{solution}/grade', 'grade');

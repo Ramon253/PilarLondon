@@ -86,7 +86,9 @@ class PostController extends Controller
 
         try {
             $post['group_name'] = Group::findOrFail($post->group_id)->name;
-        }catch (ModelNotFoundException $e){}
+        }catch (ModelNotFoundException $e){
+
+        }
 
         $post['groups'] = Group::all()->map(function ($group) {
             return ['id' => $group->id, 'name' => $group->name];
