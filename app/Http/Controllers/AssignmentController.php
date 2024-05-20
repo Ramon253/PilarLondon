@@ -53,7 +53,7 @@ class AssignmentController extends Controller
                 });
             return response()->json(['assignments' => array_values($assignments->toArray())]);
         }
-        $assignments = array_values(Assignment::all()->map(function ($assignment){
+        $assignments = array_values(Assignment::all()->map(function ($assignment) {
             $assignment['group_name'] = Group::find($assignment->group_id)->name;
             return $assignment;
         })->toArray());
@@ -126,15 +126,15 @@ class AssignmentController extends Controller
 
         if ($request->has('links')) {
             $controller = new LinkController;
-            $assignment['links'] = $controller->storeAssignment($request, $assignment);
+            $assignment['links'] = $controller->store($request, 'assignment', $assignment->id, new Assignment_link())['links'];
         }
 
         if ($request->hasFile('files')) {
             $controller = new FileController;
-            $assignment['files'] = $controller->storeAssignment($request, $assignment);
+            $assignment['fileLinks'] = $controller->store($request, 'assignment', $assignment->id, new Assignment_file())['files'];
         }
 
-        return response()->json(['message' => 'assignment created successfully', 'assignment' => $assignment]);
+        return response()->json($assignment);
     }
 
 

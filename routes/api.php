@@ -70,6 +70,7 @@ Route::controller(GroupController::class)->group(function () {
     Route::get('group/{group}', 'show');
     Route::get('group/{group}/posts', 'showPosts');
     Route::get('group/{group}/assignments', 'showAssignments');
+    Route::get('group/{group}/banner', 'showBanner');
 
     Route::post('group/{group}', 'store');
     Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'student']);

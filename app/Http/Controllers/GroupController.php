@@ -12,6 +12,8 @@ use App\Models\Post_file;
 use App\Models\Post_link;
 use App\Models\Assignment_file;
 use App\Models\Assignment_link;
+use App\Models\Wait_list;
+use App\Models\User;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use PHPUnit\Framework\MockObject\Builder\Stub;
+use function PHPUnit\Framework\isEmpty;
 
 class GroupController extends Controller
 {
@@ -27,6 +30,14 @@ class GroupController extends Controller
      */
     public function index()
     {
+        $user = User::find(auth()->id());
+        $role = $user->getRol();
+        if ($role === 'teacher') {
+            return response()->json(array_values(Group::all()->toArray()));
+        }
+        if ($role === 'student') {
+            return response()->json(array_values( Student::all()->where('user_id', $user->id)->firstOrFail()->getGroups()->toArray()));
+        }
         $groups = Group::all()->map(function (Group $group) {
             $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
             return $group;
@@ -59,6 +70,14 @@ class GroupController extends Controller
     public function showAssignments(Group $group)
     {
         return response()->json($this->getAssignments($group));
+    }
+
+    public function showBanner(Group $group)
+    {
+        if (Storage::has($group->banner)){
+            return Storage::get($group->banner);
+        }
+        return file_get_contents(public_path('assets/defaultBanner.png'));
     }
 
 
@@ -111,6 +130,35 @@ class GroupController extends Controller
         return response()->json([
             'success' => 'group successfully updated',
             'group' => $group
+        ]);
+    }
+
+    /*
+     * Wait list
+     * */
+    public function joinWaitList(Request $request, Group $group)
+    {
+        $formData = $request->validate([
+            'places' => ['required', 'integer', 'unsigned'],
+            'phone_number' => ['required', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
+        ]);
+        $formData['user_id'] = auth()->id();
+        $formData['group_id'] = $group->id;
+        $result = Wait_list::create($formData);
+
+        if ($result)
+            return response()->json([
+                'success' => $result
+            ]);
+        return response()->json(['error' => 'falied to join waitlist', 500]);
+    }
+
+    public function leaveWaitList(Group $group)
+    {
+        $wait = Wait_list::all()->where('user_id', auth()->id())->where('group_id', $group->id)->first();
+        $wait->delete();
+        return response()->json([
+            'success' => $wait
         ]);
     }
 
