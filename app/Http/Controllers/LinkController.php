@@ -43,19 +43,19 @@ class LinkController extends Controller
      */
     public function storeAssignment(Request $request, Assignment $assignment)
     {
-        return $this->store($request, 'assignment', $assignment->id, new Assignment_link);
+        return response()->json($this->store($request, 'assignment', $assignment->id, new Assignment_link));
     }
 
 
     public function storePost(Request $request, Post $post)
     {
-        return $this->store($request, 'post', $post->id, new Post_link);
+        return response()->json($this->store($request, 'post', $post->id, new Post_link));
     }
 
 
     public function storeSolution(Request $request, Solution $solution)
     {
-        return $this->store($request, 'solution', $solution->id, new Solution_link);
+        return response()->json($this->store($request, 'solution', $solution->id, new Solution_link));
     }
 
     /**
@@ -80,7 +80,7 @@ class LinkController extends Controller
     /**
      * Private
      */
-    private function store(Request $request, string $table, string $id, Model $model)
+    public function store(Request $request, string $table, string $id, Model $model)
     {
         $links = $request->validate([
             "links.*.link" => ['required', 'string'],
@@ -91,8 +91,8 @@ class LinkController extends Controller
             $link[$table . '_id'] = $id;
             $model::create($link);
         }
-        
-        return response()->json(['success' => 'Links successfully uploaded', 'links' => array_values($model::all()->where($table . '_id', $id)->toArray())], 200);
+
+        return ['success' => 'Links successfully uploaded', 'links' => array_values($model::all()->where($table . '_id', $id)->toArray())];
     }
 
     private function destroy(Model $object): array

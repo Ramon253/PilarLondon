@@ -93,7 +93,7 @@ Route::controller(PostController::class)->group(function () {
 
 Route::controller(AssignmentController::class)->group(function () {
 
-    Route::get('assignments', 'index');
+    Route::get('assignments', 'index')->middleware(['auth:sanctum', 'student']);
     Route::get('assignment/{assignment}', 'show')->middleware(['auth:sanctum', 'student']);
 
     Route::post('group/{group}/assignment', 'store');

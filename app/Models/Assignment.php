@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use function Laravel\Prompts\select;
 
 class Assignment extends Model
 {
@@ -26,4 +27,6 @@ class Assignment extends Model
             ->where('assignment_comments.assignment_id', $this->id)
             ->get();
     }
+
+
 }

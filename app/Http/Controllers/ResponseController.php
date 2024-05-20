@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
 use App\Models\Solution;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Solution_file;
 use App\Models\Solution_link;
 use App\Rules\gradeRule;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -42,16 +42,15 @@ class ResponseController extends Controller
 
         if ($request->has('links')) {
             $controller = new LinkController;
-            $solution['files'] = $controller->storeSolution($request, $solution);
+            $solution['links'] = array_values($controller->store($request, 'solution', $solution->id  , new Solution_link)['links']);
         }
 
         if ($request->hasFile('files')) {
             $controller = new FileController;
-            $solution['files'] = $controller->storeSolution($request, $solution);
+            $solution['fileLinks'] = array_values($controller->store($request, 'solution', $solution->id, new Solution_file)['files']);
         }
 
         return response()->json(['success' => 'Response successfully stored', 'solution' => $solution]);
-
     }
 
     /**
@@ -59,8 +58,12 @@ class ResponseController extends Controller
      */
     public function show(Solution $solution)
     {
-        $solution['links'] = ['links' => Solution_link::all()->where('solution_id', $solution->id)];
-        $solution['files'] = ['files' => Solution_file::all()->where('solution_id', $solution->id)];
+        $student = Student::find($solution->student_id);
+        $solution['links'] = array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray());
+        $solution['fileLinks'] = array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray());
+        $solution['student_name'] = $student->full_name;
+        $solution['user_id'] = $student->user_id;
+        $solution['student_id'] = $student->id;
         return response()->json($solution);
     }
 

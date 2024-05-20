@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use function PHPUnit\TestFixture\func;
+use function Webmozart\Assert\Tests\StaticAnalysis\allAlnum;
 
 class AssignmentController extends Controller
 {
@@ -33,24 +35,49 @@ class AssignmentController extends Controller
     /**Getters  */
     public function index(Request $request)
     {
-        /*        $groups = Student_group::all()->where('student_id', $request['student']->id)->pluck('group_id');
-        $assignments = Assignment::all()->whereIn('group_id', $groups);*/
-        $assignments = Assignment::all();
-        return response()->json($assignments);
+        if (!$request['teacher']) {
+            $student = $request['student'];
+            $groups = $student->getGroups();
+            $assignments = Assignment::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']))
+                ->map(function ($assignment) use ($student, $groups) {
+                    $assignment['fileLinks'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
+                    $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
+                    $assignment['group_name'] = $groups->filter(fn($group) => $group->id === $assignment['group_id'])[0]->name;
+                    try {
+                        Solution::all()->where('assignment_id', $assignment->id)->where('student_id', $student->id)->firstOrFail();
+                        $assignment['resolved'] = true;
+                    } catch (ModelNotFoundException|ItemNotFoundException $e) {
+                        $assignment['resolved'] = false;
+                    }
+                    return $assignment;
+                });
+            return response()->json(['assignments' => array_values($assignments->toArray())]);
+        }
+        $assignments = array_values(Assignment::all()->map(function ($assignment){
+            $assignment['group_name'] = Group::find($assignment->group_id)->name;
+            return $assignment;
+        })->toArray());
+        return response()->json(
+            [
+                'groups' => Group::all(),
+                'assignments' => $assignments
+            ]
+        );
     }
 
     public function show(Assignment $assignment, Request $request)
     {
+        $group = Group::find($assignment->group_id);
         $assignment['groups'] = array_values(Group::all()->map(function ($group) {
             $result['name'] = $group['name'];
             $result['id'] = $group['id'];
             return $result;
         })->toArray());
         $commentController = new CommentController();
-        $assignment['files'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
+        $assignment['fileLinks'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
         $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
         $assignment['comments'] = array_values($commentController->index($assignment));
-        $assignment['group_name'] = Group::find($assignment->group_id)->name;
+        $assignment['group_name'] = $group->name;
 
         if (!$request['teacher']) {
             try {
@@ -66,7 +93,7 @@ class AssignmentController extends Controller
                 return response()->json($assignment);
             }
         } else {
-            $assignment['solutions'] = array_values( Solution::all()->where('assignment_id', $assignment->id)->map(
+            $assignment['solutions'] = array_values(Solution::all()->where('assignment_id', $assignment->id)->map(
                 function ($solution) {
                     $student = Student::find($solution->student_id);
                     $solution['student_name'] = $student->full_name;
@@ -99,15 +126,15 @@ class AssignmentController extends Controller
 
         if ($request->has('links')) {
             $controller = new LinkController;
-            $result = $controller->storeAssignment($request, $assignment);
+            $assignment['links'] = $controller->storeAssignment($request, $assignment);
         }
 
         if ($request->hasFile('files')) {
             $controller = new FileController;
-            $result = $controller->storeAssignment($request, $assignment);
+            $assignment['files'] = $controller->storeAssignment($request, $assignment);
         }
 
-        return response()->json(['message' => 'assignment created successfully']);
+        return response()->json(['message' => 'assignment created successfully', 'assignment' => $assignment]);
     }
 
 

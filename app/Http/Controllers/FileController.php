@@ -30,28 +30,32 @@ class FileController extends Controller
     {
         return response()->json($assignment_file);
     }
+
     public function showPost(Post_file $post_file)
     {
         return response()->json($post_file);
     }
+
     public function showSolution(Solution_file $solution_file)
     {
         return response()->json($solution_file);
     }
+
     /**
      * Downloads
      */
-
 
 
     public function downloadAssignment(Assignment_file $assignment_file)
     {
         return Storage::download($assignment_file->file_path, $assignment_file->file_name);
     }
+
     public function downloadPost(Post_file $post_file)
     {
         return Storage::download($post_file->file_path, $post_file->file_name);
     }
+
     public function downloadSolution(Solution_file $solution_file)
     {
         return Storage::download($solution_file->file_path, $solution_file->file_name);
@@ -61,32 +65,35 @@ class FileController extends Controller
     {
         return Storage::get($assignment_file->file_path);
     }
+
     public function getPost(Post_file $post_file)
     {
         return Storage::get($post_file->file_path);
     }
+
     public function getSolution(Solution_file $solution_file)
     {
         return Storage::get($solution_file->file_path);
     }
+
     /**
      * Store
      */
     public function storeAssignment(Request $request, Assignment $assignment)
     {
-        return $this->store($request, 'assignment', $assignment->id, new Assignment_file);
+        return response()->json($this->store($request, 'assignment', $assignment->id, new Assignment_file));
     }
 
 
     public function storePost(Request $request, Post $post)
     {
-        return $this->store($request, 'post', $post->id, new Post_file);
+        return response()->json($this->store($request, 'post', $post->id, new Post_file));
     }
 
 
     public function storeSolution(Request $request, Solution $solution)
     {
-        return $this->store($request, 'solution', $solution->id, new Solution_file);
+        return response()->json($this->store($request, 'solution', $solution->id, new Solution_file));
     }
 
     /**
@@ -111,11 +118,12 @@ class FileController extends Controller
     /**
      * Private
      */
-    private function store(Request $request, string $table, string $id, Model $model)
+    public function store(Request $request, string $table, string $id, Model $model)
     {
         if (!$request->has('files')) {
-            return response()->json(['error' => 'No files sended']);
+            return ['error' => 'No files sended'];
         }
+        $files = [];
 
         foreach ($request->file('files') as $file) {
             $mimeType = $file->getClientMimeType();
@@ -130,26 +138,26 @@ class FileController extends Controller
             }
 
             if (!$isAllowed) {
-                return response()->json(['error' => 'Invalid file type']);
+                return ['error' => 'Invalid file type'];
             }
 
 
             $path = $file->store($table . "s/$id");
 
-            $model::create([
+            $createdFile = $model::create([
                 $table . '_id' => $id,
                 'file_name' => $name,
                 'file_path' => $path,
                 'mime_type' => $mimeType,
-                'header' =>   $request['header']
+                'header' => $request['header']
             ]);
+            $files[] = $createdFile;
         }
-        return response()->json(
+        return
             [
                 'success' => 'Files successfully uploaded',
-                'files' => array_values($model::all()->where($table . '_id', $id)->toArray())
-            ], 200
-        );
+                'files' => array_values($files)
+            ];
     }
 
     private function destroy(Model $object): array
