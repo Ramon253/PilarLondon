@@ -55,6 +55,8 @@ class AssignmentController extends Controller
         }
         $assignments = array_values(Assignment::all()->map(function ($assignment) {
             $assignment['group_name'] = Group::find($assignment->group_id)->name;
+            $assignment['files'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
+            $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
             return $assignment;
         })->toArray());
         return response()->json(

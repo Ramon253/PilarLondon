@@ -67,7 +67,7 @@ Route::controller(TeacherController::class)->group(function () {
 
 Route::controller(GroupController::class)->group(function () {
     Route::get('groups', 'index');
-    Route::get('group/{group}', 'show');
+    Route::get('group/{group}', 'show')->middleware(['auth:sanctum', 'student']);;
     Route::get('group/{group}/posts', 'showPosts');
     Route::get('group/{group}/assignments', 'showAssignments');
     Route::get('group/{group}/banner', 'showBanner');
@@ -82,7 +82,7 @@ Route::controller(GroupController::class)->group(function () {
 Route::controller(PostController::class)->group(function () {
 
     Route::get('posts', 'index')->middleware('auth:sanctum');
-    Route::get('post/{post}', 'show');
+    Route::get('post/{post}', 'show')->middleware(['auth:sanctum', 'student']);
 
     Route::post('post', 'storePublic');
     Route::post('group/{group}/post', 'store');
@@ -95,7 +95,7 @@ Route::controller(PostController::class)->group(function () {
 Route::controller(AssignmentController::class)->group(function () {
 
     Route::get('assignments', 'index')->middleware(['auth:sanctum', 'student']);
-    Route::get('assignment/{assignment}', 'show')->middleware(['auth:sanctum', 'student']);
+    Route::get('assignment/{assignment}', 'show');
 
     Route::post('group/{group}/assignment', 'store');
 

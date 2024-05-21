@@ -41,7 +41,6 @@ class Student
         }
         $user_id =  auth()->id();
         try {
-
             $student = ModelsStudent::where('user_id', $user_id)->firstOrFail();
         }catch (ModelNotFoundException $exception){
             $teacher = $this->isTeacher();

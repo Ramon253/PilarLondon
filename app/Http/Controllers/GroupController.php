@@ -14,6 +14,7 @@ use App\Models\Assignment_file;
 use App\Models\Assignment_link;
 use App\Models\Wait_list;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,19 +48,19 @@ class GroupController extends Controller
     }
 
 
-    public function show(Group $group)
+    public function show(Group $group, Request $request)
     {
+        $group['posts'] = $this->getPosts($group);
+        $group['assignments'] = $this->getAssignments($group);
 
-        $posts = $this->getPosts($group);
-        $assignments = $this->getAssignments($group);
-
-        $response = [
-            'group' => $group,
-            'posts' => $posts,
-            'assignments' => $assignments,
-            'students' => $group->getStudents()
-        ];
-        return response()->json($response);
+        if ($request['teacher']){
+            $students = $group->getStudents()->map(function ($student) {
+                $student['age'] = Carbon::parse($student['birth_date'])->age;
+                return $student;
+            });
+            $group['students'] = $students ;
+        }
+        return response()->json($group);
     }
 
     public function showPosts(Group $group)
@@ -210,27 +211,27 @@ class GroupController extends Controller
 
     private function getPosts(Group $group)
     {
-        return Post::all()->where('group_id', $group->id)->map(function (Post $post) {
-            $post['links'] = Post_link::all()->where('post_id', $post->id);
-            $post['files'] = Post_file::all()
+        return array_values(Post::all()->where('group_id', $group->id)->map(function (Post $post) {
+            $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
+            $post['files'] = array_values(Post_file::all()
                 ->where('post_id', $post->id)
-                ->map(fn($file) => collect($file)->except('file_path'));
+                ->map(fn($file) => collect($file)->except('file_path'))->toArray());
 
             return $post;
-        });
+        })->toArray());
     }
 
-    private function getAssignments(Group $group): Collection
+    private function getAssignments(Group $group)
     {
 
-        return Assignment::all()->where('group_id', $group->id)->map(function (Assignment $assignment) {
-            $assignment['links'] = Assignment_link::all()->where('assignment_id', $assignment->id);
-            $assignment['files'] = Assignment_file::all()
+        return array_values(Assignment::all()->where('group_id', $group->id)->map(function (Assignment $assignment) {
+            $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
+            $assignment['files'] = array_values(Assignment_file::all()
                 ->where('assignment_id', $assignment->id)
-                ->map(fn($file) => collect($file)->except('file_path'));
+                ->map(fn($file) => collect($file)->except('file_path'))->toArray());
 
             return $assignment;
-        });
+        })->toArray());
 
     }
 }
