@@ -29,7 +29,7 @@ Content-Type: application/json
 Authorization: 1|fhnGZT1Uk4L4SgCMiWe6JJVdJjaBwlhSJ4dKmB4Wec2a9ef8
 
 ###
-POST http://localhost:8000/api/login-token
+POST http://192.168.1.25:8000/api/login-token
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
@@ -37,6 +37,7 @@ Authorization: Bearer 1|Xx7EsxzUWdwoiO3E8LE5AUa14DGYCWhml5PaNJI7dd23c8bc
 {
     "join_code" : "tHF9ftw1FyD9vDCsF1cuzMTQuO9QzAFJhvBb5e53efU7j3Msq8",
     "name" : "pepe",
+    "email" : "123123adsdas@e2",
     "password" : "123456789.",
     "password_confirmation" : "123456789.",
     "full_name" : "jose ramon",

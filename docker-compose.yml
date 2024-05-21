@@ -47,6 +47,14 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+
+    front:
+        build:
+            context: ../pilarLondonng
+            dockerfile: Dockerfile
+        image: pilarlondonfront
+        ports:
+            -   80:80
 networks:
     sail:
         driver: bridge
