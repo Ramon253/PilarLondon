@@ -2,8 +2,8 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\Student;
-use App\Http\Middleware\StudentGroup;
+use App\Http\Middleware\student;
+use App\Http\Middleware\studentGroup;
 use App\Http\Middleware\Teacher;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
