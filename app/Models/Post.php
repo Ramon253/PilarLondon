@@ -20,9 +20,9 @@ class Post extends Model
     {
         return self::query()
             ->select('post_comments.*', 'users.name as user_name')
-            ->join('users', 'Post_comments.user_id', '=', 'users.id')
+            ->join('users', 'post_comments.user_id', '=', 'users.id')
             ->from('post_comments')
-            ->where('Post_comments.post_id', $this->id)
+            ->where('post_comments.post_id', $this->id)
             ->get();
     }
 }
