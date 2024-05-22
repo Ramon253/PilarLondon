@@ -19,9 +19,9 @@ class Teacher
     public function handle(Request $request, Closure $next): Response
     {
         try{
-            $teacher = ModelTeacher::findOrFail(auth()->id());
+            $teacher = ModelTeacher::all()->where('user_id', auth()->id())->firstOrFail();
             $request['teacher'] = $teacher;
-            
+
         }catch(ModelNotFoundException $e){
             return response()->json(['error' => 'You must be a techaer to access this']);
         }

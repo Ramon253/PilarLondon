@@ -9,6 +9,16 @@ class Group extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'teacher_id',
+        'name',
+        'level',
+        'lessons_day',
+        'lessons_time',
+        'banner',
+        'capacity'
+    ];
+
     public function getStudents()  {
         return self::query()
             ->select('students.*')

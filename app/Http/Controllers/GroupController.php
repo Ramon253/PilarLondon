@@ -89,10 +89,12 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $group = $request->validate([
+            'name' => ['required'],
             'level' => ['required', 'in:A1,A2,B1,B2,C1,C2'],
             'capacity' => ['required', 'integer'],
-            'lesson_time' => ['required', 'regex:/^(?:[01]\d|2[0-3]):[0-5]\d$/'],
-            'lesson_days' => ['required', 'in:l-m,m-j,v']
+            'lessons_time' => ['required', 'regex:/^(?:[01]\d|2[0-3]):[0-5]\d$/'],
+            'lesson_days' => ['required', 'in:l-m,m-j,v'],
+            'banner' => ['required'],
         ]);
 
         $group['teacher_id'] = $request['teacher']->id;
