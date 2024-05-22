@@ -72,7 +72,7 @@ Route::controller(GroupController::class)->group(function () {
     Route::get('group/{group}/assignments', 'showAssignments');
     Route::get('group/{group}/banner', 'showBanner');
 
-    Route::post('group/{group}', 'store');
+    Route::post('group', 'store');
     Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'student']);
 
     Route::delete('group/{group}', 'destroy');
