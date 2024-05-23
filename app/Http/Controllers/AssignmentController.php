@@ -38,11 +38,15 @@ class AssignmentController extends Controller
         if (!$request['teacher']) {
             $student = $request['student'];
             $groups = $student->getGroups();
+
+
             $assignments = Assignment::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']))
                 ->map(function ($assignment) use ($student, $groups) {
+
                     $assignment['fileLinks'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
                     $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
-                    $assignment['group_name'] = $groups->filter(fn($group) => $group->id === $assignment['group_id'])[0]->name;
+                    $assignment['group_name'] = $groups->search(fn($group) => $group->id === $assignment['group_id'])->name;
+
                     try {
                         Solution::all()->where('assignment_id', $assignment->id)->where('student_id', $student->id)->firstOrFail();
                         $assignment['resolved'] = true;
