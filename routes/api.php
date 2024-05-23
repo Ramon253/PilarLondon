@@ -49,9 +49,8 @@ Route::controller(UserController::class)->group(function () {
 
 Route::controller(StudentController::class)->group(function () {
     Route::post('student', 'store')->middleware(['auth:sanctum']);
-
+    Route::get('students', 'index')->middleware(['auth:sanctum', 'teacher']);
     Route::middleware(['auth:sanctum', 'student'])->group(function () {
-
         Route::get('dashboard', 'dashboard');
         Route::get('dashboard/post', 'postsDashboard');
         Route::get('dashboard/assignment', 'assignmentsDashboard');
@@ -73,10 +72,10 @@ Route::controller(GroupController::class)->group(function () {
     Route::get('group/{group}/banner', 'showBanner');
 
     Route::post('group', 'store')->middleware(['teacher']);
-    Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'student']);
+    Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'teacher']);
 
     Route::delete('group/{group}', 'destroy');
-    Route::delete('group/{group}/kick', 'kick')->middleware(['student']);
+    Route::delete('group/{group}/kick', 'kick')->middleware(['auth:sanctum', 'teacher']);
 });
 
 Route::controller(PostController::class)->group(function () {

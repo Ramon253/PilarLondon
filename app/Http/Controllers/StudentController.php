@@ -28,6 +28,10 @@ use PhpParser\Node\Stmt\Return_;
 class StudentController extends Controller
 {
 
+    public function index()
+    {
+        return response()->json(array_values(Student::all()->toArray()));
+    }
     /**
      * shows
      */

@@ -37,7 +37,7 @@ class GroupController extends Controller
             return response()->json(array_values(Group::all()->toArray()));
         }
         if ($role === 'student') {
-            return response()->json(array_values( Student::all()->where('user_id', $user->id)->firstOrFail()->getGroups()->toArray()));
+            return response()->json(array_values(Student::all()->where('user_id', $user->id)->firstOrFail()->getGroups()->toArray()));
         }
         $groups = Group::all()->map(function (Group $group) {
             $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
@@ -53,12 +53,12 @@ class GroupController extends Controller
         $group['posts'] = $this->getPosts($group);
         $group['assignments'] = $this->getAssignments($group);
 
-        if ($request['teacher']){
+        if ($request['teacher']) {
             $students = $group->getStudents()->map(function ($student) {
                 $student['age'] = Carbon::parse($student['birth_date'])->age;
                 return $student;
             });
-            $group['students'] = $students ;
+            $group['students'] = $students;
         }
         return response()->json($group);
     }
@@ -75,7 +75,7 @@ class GroupController extends Controller
 
     public function showBanner(Group $group)
     {
-        if (Storage::has($group->banner)){
+        if (Storage::has($group->banner)) {
             return Storage::get($group->banner);
         }
         return file_get_contents(public_path('assets/defaultBanner.png'));
@@ -94,7 +94,7 @@ class GroupController extends Controller
             'capacity' => ['required', 'integer'],
             'lessons_time' => ['required', 'regex:/^(?:[01]\d|2[0-3]):[0-5]\d$/'],
             'lesson_days' => ['required', 'in:l-m,m-j,v'],
-            'banner' => ['required'],
+            'banner' => ['required', 'file'],
         ]);
 
         $group['teacher_id'] = $request['teacher']->id;
@@ -186,22 +186,26 @@ class GroupController extends Controller
      */
     public function join(Request $request, Group $group)
     {
-        $student_id = $request['student']->id;
+        $student_id = $request->validate(
+            ['student_id' => ['required', Rule::exists('students', 'id')]]
+        );
 
         Student_group::create([
-            'student_id' => $student_id,
+            'student_id' => $student_id['student_id'],
             'group_id' => $group->id
         ]);
 
-        return response()->json(['sucess' => 'the student has joined the class successfully']);
+        return response()->json(['success' => 'the student has joined the class successfully']);
     }
 
 
     public function kick(Request $request, Group $group)
     {
-        $student_id = $request['student']->id;
+        $student_id = $request->validate(
+            ['student_id' => ['required', Rule::exists('students', 'id')]]
+        );
 
-        $relation = Student_group::where('student_id', $student_id)->where('group_id', $group->id)->delete();
+        $relation = Student_group::where('student_id', $student_id['student_id'])->where('group_id', $group->id)->delete();
 
         return response()->json(['sucess' => 'the student has leaved the class successfully']);
     }
