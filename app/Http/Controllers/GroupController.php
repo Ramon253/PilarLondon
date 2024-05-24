@@ -119,21 +119,32 @@ class GroupController extends Controller
         $groupData = $request->validate([
             'level' => ['string', 'in:A1,A2,B1,B2,C1,C2'],
             'capacity' => ['integer'],
+            'name' => ['string'],
             'lesson_time' => ['regex:/^(?:[01]\d|2[0-3]):[0-5]\d$/'],
             'lesson_days' => ['string', 'in:l-m,m-j,v']
         ]);
-
-        if ($request->hasFile('banner')) {
-            Storage::delete($group->banner);
-            $groupData['banner'] = $request->file('banner')->store('groups/');
-        }
 
         $group->update($groupData);
 
         return response()->json([
             'success' => 'group successfully updated',
-            'group' => $group
+            'group' => $this->show($group, $request)
         ]);
+    }
+
+    public function putBanner(Group $group, Request $request)
+    {
+        $request->validate([
+            'banner' => ['required','image', 'mimes:jpeg,png,jpg,gif,svg']
+        ]);
+
+        Storage::delete($group->banner);
+        $banner = $request->file('banner')->store('groups/');
+
+        $group->banner = $banner;
+        $group->save();
+
+        return response()->json(['success' => 'Banner successfully uploaded']);
     }
 
     /*

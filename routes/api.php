@@ -74,6 +74,8 @@ Route::controller(GroupController::class)->group(function () {
     Route::post('group', 'store')->middleware(['teacher']);
     Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'teacher']);
 
+    Route::put('group/{group}', 'update')->middleware(['auth:sanctum', 'teacher']);
+    Route::post('group/{group}/banner', 'putBanner')->middleware(['auth:sanctum', 'teacher']);
     Route::delete('group/{group}', 'destroy');
     Route::delete('group/{group}/kick', 'kick')->middleware(['auth:sanctum', 'teacher']);
 });

@@ -45,7 +45,7 @@ class AssignmentController extends Controller
 
                     $assignment['fileLinks'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
                     $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
-                    $assignment['group_name'] = $groups->search(fn($group) => $group->id === $assignment['group_id'])->name;
+                    $assignment['group_name'] = $groups->firstWhere('id', $assignment->group_id)->name;
 
                     try {
                         Solution::all()->where('assignment_id', $assignment->id)->where('student_id', $student->id)->firstOrFail();
