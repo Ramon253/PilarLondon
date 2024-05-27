@@ -59,7 +59,7 @@ class UserController extends Controller
 
             session()->regenerate();
             return response()->json(
-                 $this->getUserInfo($request),
+                $this->getUserInfo($request),
             );
         }
 
@@ -160,17 +160,27 @@ class UserController extends Controller
         try {
             $code = Join_code::findOrFail($data['join_code']);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Code not found']);
+            return response()->json(['error' => 'Code not found', 404]);
         }
 
         if ($code->user_id !== null) {
-            return response()->json(['error' => 'code already in use']);
+            return response()->json(['error' => 'code already in use', 401]);
         }
 
         $code->user_id = auth()->id();
         $code->save();
 
         return response()->json(['success' => 'account successfully activated']);
+    }
+
+    public function isActivated()
+    {
+        try {
+            $code = Join_code::where('user_id', auth()->id())->firstOrFail();
+            return response()->json(['message'=> 'You are acivated']);
+        }catch (ModelNotFoundException | ItemNotFoundException $e){
+            return response()->json(['error'=> 'You user is not activated'], 401);
+        }
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Models\Post_file;
 use App\Models\Post_link;
 use App\Models\Solution;
 use App\Models\Student_group;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Cache\Store;
@@ -30,29 +31,27 @@ class StudentController extends Controller
 
     public function index()
     {
-        return response()->json(array_values(Student::all()->toArray()));
+        return response()->json(array_values(Student::all()->map(
+            function ($student){
+                $student['age'] = Carbon::parse($student->birth_date)->age;
+                return $student;
+            }
+        )->toArray()));
     }
     /**
      * shows
      */
 
-    public function show(Request $request)
+    public function show(Request $request, Student $student)
     {
-        $student = $request['student'];
-        $groups = $student->getGroups();
-        $parents = Parents::all()->where('student_id', $student->id);
-        $submissions = Solution::all()->where('student_id', $student->id);
-        $user = auth()->user();
-
-        return response()->json([
-            'student' => $student,
-            'user' => $user,
-            'parents' => $parents,
-            'groups' => $groups,
-            'submissions' => $submissions
-        ]);
+        return $this->getProfile($student, User::find($student->user_id));
     }
 
+    public function profile(Request $request)
+    {
+        $student = $request['student'];
+        return $this->getProfile($student, auth()->user());
+    }
     public function dashboard(Request $request)
     {
         $student = $request['student'];
@@ -190,4 +189,28 @@ class StudentController extends Controller
 
         return $file->storeAs('users/' . auth()->id());
     }
+
+    private function getProfile($student, $user) {
+        $groups = $student->getGroups();
+        $parents = Parents::all()->where('student_id', $student->id);
+        $submissions = Solution::all()->where('student_id', $student->id)->map(function ($solution){
+            $assignment = Assignment::find($solution->assignment_id);
+            $group = Group::find($assignment->group_id);
+
+            $solution['assignment_id'] = $assignment->id;
+            $solution['assignment_name'] = $assignment->name;
+            $solution['group_name'] = $group->name;
+            $solution['group_id'] = $assignment->group_id;
+            return $solution;
+        });
+        $student['age'] = Carbon::parse($student->birth_date)->age;
+
+        return response()->json([
+            'student' => $student,
+            'user' => $user,
+            'parents' => $parents,
+            'groups' => $groups,
+            'submissions' => $submissions
+        ]);
+}
 }

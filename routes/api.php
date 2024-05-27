@@ -36,6 +36,7 @@ use function Pest\Laravel\json;
 Route::controller(UserController::class)->group(function () {
     Route::get('user', 'show')->middleware('auth:sanctum');
     Route::get('user/{user}/profile-picture', 'profilePic');
+    Route::get('isActivated','isActivated' )->middleware('auth:sanctum');
 
     Route::post('user', 'store');
     Route::post('login', 'login');
@@ -54,10 +55,11 @@ Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'dashboard');
         Route::get('dashboard/post', 'postsDashboard');
         Route::get('dashboard/assignment', 'assignmentsDashboard');
-        Route::get('student', 'show');
+        Route::get('student', 'profile');
         Route::put('student', 'update');
         Route::delete('student', 'destroy');
     });
+    Route::get('student/{student}', 'show')->middleware(['auth:sanctum', 'teacher']);
 });
 
 Route::controller(TeacherController::class)->group(function () {
