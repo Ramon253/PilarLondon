@@ -17,6 +17,7 @@ use App\Models\Student_group;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use http\Env\Response;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -143,6 +144,19 @@ class StudentController extends Controller
     /**
      * Updates
      */
+    public function putProfileImage(Request $request)
+    {
+        $formData = $request->validate([
+            'profile_photo' => ['file', 'required']
+        ]);
+
+        Storage::delete($request['student']->profile_photo);
+        $path = $this->storePhoto($request);
+        $request['student']->profile_photo = $path;
+        $request['student']->save();
+
+        return \response()->json(['success'=> 'Uploaded successfully']);
+    }
     public function update(Request $request)
     {
         $formData = $request->validate([
@@ -150,16 +164,10 @@ class StudentController extends Controller
             'surname' => 'string',
             'level' => 'string',
             'birth_date' => ['date'],
-            'parent_id' => [Rule::exists('users', 'id')]
         ]);
-
-        if ($request->hasFile('profile_photo')) {
-            Storage::delete($request['student']->profile_photo);
-            $formData['profile_photo'] = $this->storePhoto($request);
-        }
         $request['student']->update($formData);
-
-        return response()->json(['success' => 'Profile updated successfully']);
+        $request['student']['age'] = Carbon::parse($request['student']->birth_date)->age;
+        return response()->json(['success' => 'Profile updated successfully', 'student' => $request['student']]);
     }
 
 
@@ -181,19 +189,25 @@ class StudentController extends Controller
     private function storePhoto(Request $request)
     {
         $file = $request->file('profile_photo');
+
         $mimeType = $file->getClientMimeType();
 
         if (!Str::contains($mimeType, 'image')) {
             return response()->json(['error' => 'Invalid file, please send an image']);
         }
 
-        return $file->storeAs('users/' . auth()->id());
+        return $file->store('users/' . auth()->id());
     }
 
     private function getProfile($student, $user) {
-        $groups = $student->getGroups();
-        $parents = Parents::all()->where('student_id', $student->id);
-        $submissions = Solution::all()->where('student_id', $student->id)->map(function ($solution){
+        $groups = array_values($student->getGroups()->toArray());
+        $parents = array_values(Parents::all()->where('student_id', $student->id)->map(
+            function ($parent){
+                $parent['user'] = User::find($parent->id);
+                return $parent;
+            }
+        )->toArray());
+        $submissions = array_values(Solution::all()->where('student_id', $student->id)->map(function ($solution){
             $assignment = Assignment::find($solution->assignment_id);
             $group = Group::find($assignment->group_id);
 
@@ -202,7 +216,7 @@ class StudentController extends Controller
             $solution['group_name'] = $group->name;
             $solution['group_id'] = $assignment->group_id;
             return $solution;
-        });
+        })->toArray());
         $student['age'] = Carbon::parse($student->birth_date)->age;
 
         return response()->json([

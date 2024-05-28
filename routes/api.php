@@ -56,6 +56,10 @@ Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard/post', 'postsDashboard');
         Route::get('dashboard/assignment', 'assignmentsDashboard');
         Route::get('student', 'profile');
+
+        Route::post('profile_picture', 'putProfileImage');
+
+
         Route::put('student', 'update');
         Route::delete('student', 'destroy');
     });

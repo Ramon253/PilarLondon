@@ -93,13 +93,11 @@ class UserController extends Controller
         }
         try {
             $student = Student::all()->where('user_id', $user->id)->firstOrFail();
-            if ($student->profile_photo === null) {
-                return file_get_contents(public_path('assets/defaultProfile.png'));
-            }
             if (Storage::has($student->profile_photo)) {
                 return Storage::get($student->profile_photo);
-            } else
-                return file_get_contents(public_path('assets/defaultProfile.png'));
+            }
+
+            return file_get_contents(public_path('assets/defaultProfile.png'));
         } catch (ItemNotFoundException $e) {
             return file_get_contents(public_path('assets/defaultProfile.png'));
         }
@@ -177,9 +175,9 @@ class UserController extends Controller
     {
         try {
             $code = Join_code::where('user_id', auth()->id())->firstOrFail();
-            return response()->json(['message'=> 'You are acivated']);
-        }catch (ModelNotFoundException | ItemNotFoundException $e){
-            return response()->json(['error'=> 'You user is not activated'], 401);
+            return response()->json(['message' => 'You are acivated']);
+        } catch (ModelNotFoundException|ItemNotFoundException $e) {
+            return response()->json(['error' => 'You user is not activated'], 401);
         }
     }
 
