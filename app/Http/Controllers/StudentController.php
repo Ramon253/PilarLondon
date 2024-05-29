@@ -58,27 +58,18 @@ class StudentController extends Controller
         $student = $request['student'];
 
         $groups = $student->getGroups();
-        $submissions = Solution::all()->where('student_id', $student->id);
-        $posts = Post::all()->whereIn('group_id', $groups);
-        $assignments = Assignment::all();
-        $submittedAssginments = Assignment::all()->whereIn('id', $submissions->pluck('assignment_id'));
-        $assignments = $assignments->diff($submittedAssginments);
+        $assignments = Assignment::all()->whereIn('group_id', $groups->pluck('id'));
+        $todoAssignments = $assignments->filter(function ($assignment){
+            return Solution::all()->where('assignment_id', $assignment->id)->first();
+        })->sortBy('dead_line');
 
-        $posts = $posts->map(function ($item) {
-            $item['links'] = Post_link::all()->where('post_id' , $item->id);
-            $item['files'] = Post_file::all()->where('post_id' , $item->id);
-
-            return $item;
-        });
-
+        $answered = ($todoAssignments->count() * 100)/$assignments->count();
 
         return response()->json([
             'student' => $student,
             'groups' => $groups,
-            'posts' => $posts,
-            'submissions' => $submissions,
-            'submittedAssignments' => $submittedAssginments,
-            'assignments' => $assignments
+            'assignments' => array_values($todoAssignments->toArray()),
+            'answered' => $answered,
         ]);
     }
 
