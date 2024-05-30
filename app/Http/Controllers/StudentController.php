@@ -71,7 +71,7 @@ class StudentController extends Controller
             function ($solution) {
                 $assignment = Assignment::find($solution->assignment_id);
                 $solution['assignment_name'] = $assignment->name;
-                $solution['group_name'] = Group::all()->where('id', $assignment->id)->first()->name;
+                $solution['group_name'] = Group::all()->where('id', $assignment->group_id)->first()->name;
                 return $solution;
             }
         )->toArray();
