@@ -67,6 +67,7 @@ Route::controller(StudentController::class)->group(function () {
 });
 
 Route::controller(TeacherController::class)->group(function () {
+    Route::get('teacher/dashboard', 'dashboard')->middleware(['auth:sanctum', 'teacher']);
     Route::post('student/generate', 'generateStudent')->middleware(['auth:sanctum']);
 });
 

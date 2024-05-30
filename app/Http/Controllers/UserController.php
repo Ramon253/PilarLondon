@@ -93,7 +93,7 @@ class UserController extends Controller
         }
         try {
             $student = Student::all()->where('user_id', $user->id)->firstOrFail();
-            if (Storage::has($student->profile_photo)) {
+            if (Storage::has($student->profile_photo ?? '')) {
                 return Storage::get($student->profile_photo);
             }
 

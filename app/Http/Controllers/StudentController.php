@@ -33,12 +33,13 @@ class StudentController extends Controller
     public function index()
     {
         return response()->json(array_values(Student::all()->map(
-            function ($student){
+            function ($student) {
                 $student['age'] = Carbon::parse($student->birth_date)->age;
                 return $student;
             }
         )->toArray()));
     }
+
     /**
      * shows
      */
@@ -53,32 +54,48 @@ class StudentController extends Controller
         $student = $request['student'];
         return $this->getProfile($student, auth()->user());
     }
+
     public function dashboard(Request $request)
     {
         $student = $request['student'];
 
         $groups = $student->getGroups();
         $assignments = Assignment::all()->whereIn('group_id', $groups->pluck('id'));
-        $todoAssignments = $assignments->filter(function ($assignment){
-            return Solution::all()->where('assignment_id', $assignment->id)->first();
+        $todoAssignments = $assignments->filter(function ($assignment) use ($student) {
+            return !Solution::all()
+                ->where('assignment_id', $assignment->id)
+                ->where('student_id', $student->id)->first();
         })->sortBy('dead_line');
 
-        $answered = ($todoAssignments->count() * 100)/$assignments->count();
+        $solutions = Solution::all()->where('student_id', $student->id)->sortBy('updated_at')->map(
+            function ($solution) {
+                $assignment = Assignment::find($solution->assignment_id);
+                $solution['assignment_name'] = $assignment->name;
+                $solution['group_name'] = Group::all()->where('id', $assignment->id)->first()->name;
+                return $solution;
+            }
+        )->toArray();
+        $assignmentsNum = $assignments->count();
+        if ($todoAssignments->count() === 0) $answered = 0;
+        else
+            $answered = ($assignmentsNum === 0) ? 0 : ($todoAssignments->count() * 100) / $assignmentsNum;
+
 
         return response()->json([
             'student' => $student,
             'groups' => $groups,
             'assignments' => array_values($todoAssignments->toArray()),
             'answered' => $answered,
+            'solutions' => array_values($solutions)
         ]);
     }
 
     public function postsDashboard(Request $request)
     {
-        if ($request['teacher']){
+        if ($request['teacher']) {
             return response()->json([
                 'posts' => array_values(Post::all()->where('group_id', '<>', null)->toArray()),
-                'groups' => array_values(Group::all()->map(function ($group){
+                'groups' => array_values(Group::all()->map(function ($group) {
                     $result['id'] = $group['id'];
                     $result['name'] = $group['name'];
                     return $result;
@@ -93,10 +110,12 @@ class StudentController extends Controller
             'posts' => array_values($posts->toArray())
         ]);
     }
+
     public function assignmentsDashboard()
     {
 
     }
+
     /**
      * Store
      */
@@ -140,14 +159,16 @@ class StudentController extends Controller
         $formData = $request->validate([
             'profile_photo' => ['file', 'required']
         ]);
+        if ($request['student']->profile_photo !== null)
+            Storage::delete($request['student']->profile_photo);
 
-        Storage::delete($request['student']->profile_photo);
         $path = $this->storePhoto($request);
         $request['student']->profile_photo = $path;
         $request['student']->save();
 
-        return \response()->json(['success'=> 'Uploaded successfully']);
+        return \response()->json(['success' => 'Uploaded successfully', 'path' => $path]);
     }
+
     public function update(Request $request)
     {
         $formData = $request->validate([
@@ -190,15 +211,16 @@ class StudentController extends Controller
         return $file->store('users/' . auth()->id());
     }
 
-    private function getProfile($student, $user) {
+    private function getProfile($student, $user)
+    {
         $groups = array_values($student->getGroups()->toArray());
         $parents = array_values(Parents::all()->where('student_id', $student->id)->map(
-            function ($parent){
+            function ($parent) {
                 $parent['user'] = User::find($parent->id);
                 return $parent;
             }
         )->toArray());
-        $submissions = array_values(Solution::all()->where('student_id', $student->id)->map(function ($solution){
+        $submissions = array_values(Solution::all()->where('student_id', $student->id)->map(function ($solution) {
             $assignment = Assignment::find($solution->assignment_id);
             $group = Group::find($assignment->group_id);
 
@@ -217,5 +239,5 @@ class StudentController extends Controller
             'groups' => $groups,
             'submissions' => $submissions
         ]);
-}
+    }
 }
