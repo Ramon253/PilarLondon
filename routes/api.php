@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\LinkController;
@@ -184,4 +185,9 @@ Route::controller(CommentController::class)->group(function () {
     Route::put('assignment/comment/{assignment_comment}', 'updateAssignment');
     Route::put('post/comment/{post_comment}', 'updatePost');
     Route::put('solution/comment/{solution_comment}', 'updateSolution');
+});
+
+
+Route::controller(EmailController::class)->group(function (){
+    Route::post('contact', 'contact');
 });
