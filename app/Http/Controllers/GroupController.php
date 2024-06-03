@@ -16,8 +16,10 @@ use App\Models\Wait_list;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -31,7 +33,20 @@ class GroupController extends Controller
      */
     public function index()
     {
-        $user = User::find(auth()->id());
+        if(!Auth::check()){
+            $groups = Group::all()->map(function (Group $group) {
+                $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
+                return $group;
+            });
+            return response()->json($groups);
+        }
+        try {
+            $user = User::findOrFail(auth()->id());
+        }catch (ModelNotFoundException $e){
+            return  response()->json([
+                'error' => 'user not found exception'
+            ], 401);
+        }
         $role = $user->getRol();
         if ($role === 'teacher') {
             return response()->json(array_values(Group::all()->toArray()));
