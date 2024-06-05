@@ -129,7 +129,7 @@ class AssignmentController extends Controller
         $assignment = $request->validate([
             'name' => ['required', 'string'],
             'dead_line' => ['required', 'date'],
-            'description' => ['string'],
+            'description' => ['string', 'nullable'],
             'group_id' => ['required', Rule::exists('groups', 'id')],
             'inClass' => ['boolean']
         ]);

@@ -38,7 +38,7 @@ class PostController extends Controller
         });
         return response()->json([
             'groups' => $groups,
-            'posts' => array_values(Post::all()->where('group_id' , null)->map(function ($post) {
+            'posts' => array_values(Post::all()->where('group_id', null)->map(function ($post) {
                 $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
                 $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
                 return $post;
@@ -61,7 +61,9 @@ class PostController extends Controller
         ]);
         return $this->savePost($request, $post);
     }
-    public function storePublic(Request $request){
+
+    public function storePublic(Request $request)
+    {
 
         $post = $request->validate([
             'name' => ['required', 'string'],
@@ -86,7 +88,7 @@ class PostController extends Controller
 
         try {
             $post['group_name'] = Group::findOrFail($post->group_id)->name;
-        }catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
 
         }
 
@@ -107,16 +109,21 @@ class PostController extends Controller
             'subject' => ['string'],
             'description' => ['string']
         ]);
-        $postData['group_id'] = null;
-        if ($request->group_id !== 'public'){
+        if ($request->has('description')) {
+            if ($postData['description'] === '--@undefined')
+                $postData['description'] = null;
+        }
+        if ($request->group_id !== 'public') {
             $group = $request->validate([
                 'group_id' => ['required', Rule::exists('groups', 'id')]
             ]);
             $postData['group_id'] = $group['group_id'];
+        } else {
+            $postData['group_id'] = null;
         }
 
-        $updatedPost =  $post->update($postData);
-        return response()->json(['success' => 'post successfully updated', 'post' => $updatedPost]);
+        $updatedPost = $post->update($postData);
+        return response()->json(['success' => 'post successfully updated', 'post' => $post]);
     }
 
     /**
@@ -134,7 +141,8 @@ class PostController extends Controller
      * Privates
      * */
 
-    private function savePost(Request $request, $post){
+    private function savePost(Request $request, $post)
+    {
         $post = Post::create($post);
 
         if ($request->has('links')) {

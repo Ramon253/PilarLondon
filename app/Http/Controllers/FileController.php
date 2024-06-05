@@ -48,17 +48,26 @@ class FileController extends Controller
 
     public function downloadAssignment(Assignment_file $assignment_file)
     {
-        return Storage::download($assignment_file->file_path, $assignment_file->file_name);
+        return Storage::download($assignment_file->file_path, $assignment_file->file_name, [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$assignment_file->file_name.'"',
+        ]);
     }
 
     public function downloadPost(Post_file $post_file)
     {
-        return Storage::download($post_file->file_path, $post_file->file_name);
+        return Storage::download($post_file->file_path, $post_file->file_name, [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$post_file->file_name.'"',
+        ]);
     }
 
     public function downloadSolution(Solution_file $solution_file)
     {
-        return Storage::download($solution_file->file_path, $solution_file->file_name);
+        return Storage::download($solution_file->file_path, $solution_file->file_name, [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$solution_file->file_name.'"',
+        ]);
     }
 
     public function getAssignment(Assignment_file $assignment_file)
