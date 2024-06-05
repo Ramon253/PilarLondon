@@ -134,7 +134,7 @@ Route::controller(FileController::class)->group(function () {
     Route::get('solution/file/{solution_file}', 'showSolution');
 
     Route::get('assignment/file/{assignment_file}/get', 'getAssignment');
-    Route::get('post/file/{post_file}/get', 'getPost')->middleware(['auth:sanctum']);
+    Route::get('post/file/{post_file}/get', 'getPost');
     Route::get('solution/file/{solution_file}/get', 'getSolution');
 
     Route::get('assignment/file/{assignment_file}/download', 'downloadAssignment');
