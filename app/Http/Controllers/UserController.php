@@ -121,8 +121,10 @@ class UserController extends Controller
         ]);
 
         $user = User::create($formFields);
+        $user['role'] = 'none';
+        auth()->login($user);
 
-        return response()->json(['message' => 'user created successfully']);
+        return response()->json(['message' => 'user created successfully', 'user' => $user]);
     }
 
 

@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:4200', 'http://44.218.157.35', 'http://44.218.157.35:80','https://44.218.157.35', 'https://44.218.157.35:443'],
+    'allowed_origins' => ['http://localhost:4200', 'http://44.218.157.35', 'http://44.218.157.35:80','https://44.218.157.35', 'https://44.218.157.35:443', 'https://pilarlondon.xyz'],
 
     'allowed_origins_patterns' => [],
 

@@ -66,11 +66,3 @@ volumes:
     sail-mysql:
         driver: local
 
-
-#    front:
-#        build:
-#            context: ../pilarLondonng/
-#            dockerfile: Dockerfile
-#        image: pilarlondonfront
-#        ports:
-#            -   80:80
