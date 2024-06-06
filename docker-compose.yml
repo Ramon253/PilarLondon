@@ -32,14 +32,6 @@ services:
         networks:
             - sail
 
-    front:
-        image: pilarlondonfront
-        ports:
-            - "80:80"
-            - "443:443"
-        volumes:
-            - ../pilarlondonng/certs:/etc/nginx/certs
-            - ../pilarlondonng/nginx.conf:/etc/nginx/conf.d/default.conf
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
