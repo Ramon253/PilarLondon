@@ -32,6 +32,14 @@ services:
             - laravel.test
         networks:
             - sail
+
+    front:
+        build:
+            context: ../pilarLondonng/
+            dockerfile: Dockerfile
+        image: pilarlondonfront
+        ports:
+            - 80:80
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -67,10 +75,10 @@ volumes:
         driver: local
 
 
-#    front:
-#        build:
-#            context: ../pilarLondonng/
-#            dockerfile: Dockerfile
-#        image: pilarlondonfront
-#        ports:
-#            -   80:80
+    front:
+        build:
+            context: ../pilarLondonng/
+            dockerfile: Dockerfile
+        image: pilarlondonfront
+        ports:
+            -   80:80
