@@ -94,7 +94,11 @@ class StudentController extends Controller
     {
         if ($request['teacher']) {
             return response()->json([
-                'posts' => array_values(Post::all()->where('group_id', '<>', null)->toArray()),
+                'posts' => array_values(Post::all()->where('group_id', '<>', null)->map(function ($post){
+                    $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
+                    $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
+                    return $post;
+                })->toArray()),
                 'groups' => array_values(Group::all()->map(function ($group) {
                     $result['id'] = $group['id'];
                     $result['name'] = $group['name'];
@@ -104,7 +108,11 @@ class StudentController extends Controller
         }
         $student = $request['student'];
         $groups = $student->getGroups();
-        $posts = Post::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']));
+        $posts = Post::all()->whereIn('group_id', $groups->map(fn($group) => $group['id']))->map(function ($post) {
+            $post['links'] = array_values(Post_link::all()->where('post_id', $post->id)->toArray());
+            $post['files'] = array_values(Post_file::all()->where('post_id', $post->id)->toArray());
+            return $post;
+        });
         return response()->json([
             'groups' => $groups,
             'posts' => array_values($posts->toArray())
@@ -220,6 +228,7 @@ class StudentController extends Controller
                 return $parent;
             }
         )->toArray());
+
         $submissions = array_values(Solution::all()->where('student_id', $student->id)->map(function ($solution) {
             $assignment = Assignment::find($solution->assignment_id);
             $group = Group::find($assignment->group_id);
@@ -230,6 +239,7 @@ class StudentController extends Controller
             $solution['group_id'] = $assignment->group_id;
             return $solution;
         })->toArray());
+
         $student['age'] = Carbon::parse($student->birth_date)->age;
 
         return response()->json([

@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use function Pest\Laravel\json;
+use function PHPUnit\Framework\throwException;
 
 class FileController extends Controller
 {
@@ -147,7 +148,7 @@ class FileController extends Controller
             }
 
             if (!$isAllowed) {
-                return ['error' => 'Invalid file type'];
+                throwException(new \Exception('File is not allowed'));
             }
 
 

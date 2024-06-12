@@ -33,7 +33,7 @@ class ResponseController extends Controller
     public function store(Request $request, Assignment $assignment)
     {
         $solution = $request->validate([
-            'description' => ['string']
+            'description' => ['string', 'nullable']
         ]);
         $solution['student_id'] = $request['student']->id;
         $solution['assignment_id'] = $assignment->id;
@@ -58,6 +58,7 @@ class ResponseController extends Controller
      */
     public function show(Solution $solution)
     {
+
         $student = Student::find($solution->student_id);
         $solution['links'] = array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray());
         $solution['fileLinks'] = array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray());

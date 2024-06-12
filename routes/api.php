@@ -36,8 +36,8 @@ use function Pest\Laravel\json;
 
 Route::controller(UserController::class)->group(function () {
     Route::get('user', 'show')->middleware('auth:sanctum');
-    Route::get('user/{user}/profile-picture', 'profilePic');
-    Route::get('isActivated','isActivated' )->middleware('auth:sanctum');
+    Route::get('user/{user}/profile-picture', 'profilePic')->middleware(['auth:sanctum', 'profilePicture']);
+    Route::get('isActivated', 'isActivated')->middleware('auth:sanctum');
 
     Route::post('user', 'store');
     Route::post('login', 'login');
@@ -60,7 +60,6 @@ Route::controller(StudentController::class)->group(function () {
 
         Route::post('profile_picture', 'putProfileImage');
 
-
         Route::put('student', 'update');
         Route::delete('student', 'destroy');
     });
@@ -69,23 +68,30 @@ Route::controller(StudentController::class)->group(function () {
 
 Route::controller(TeacherController::class)->group(function () {
     Route::get('teacher/dashboard', 'dashboard')->middleware(['auth:sanctum', 'teacher']);
-    Route::post('student/generate', 'generateStudent')->middleware(['auth:sanctum']);
+    Route::get('teacher/profile', 'show')->middleware(['auth:sanctum', 'teacher']);
+    Route::post('student/generate', 'generateStudent')->middleware(['auth:sanctum', 'teacher']);
 });
 
 Route::controller(GroupController::class)->group(function () {
     Route::get('groups', 'index');
-    Route::get('group/{group}', 'show')->middleware(['auth:sanctum', 'student']);;
-    Route::get('group/{group}/posts', 'showPosts');
-    Route::get('group/{group}/assignments', 'showAssignments');
     Route::get('group/{group}/banner', 'showBanner');
 
-    Route::post('group', 'store')->middleware(['teacher']);
-    Route::post('group/{group}/join', 'join')->middleware(['auth:sanctum', 'teacher']);
+    Route::middleware(['auth:sanctum', 'student'])->group(function () {
+        Route::get('group/{group}', 'show');
+        Route::get('group/{group}/posts', 'showPosts');
+        Route::get('group/{group}/assignments', 'showAssignments');
+    });
 
-    Route::put('group/{group}', 'update')->middleware(['auth:sanctum', 'teacher']);
-    Route::post('group/{group}/banner', 'putBanner')->middleware(['auth:sanctum', 'teacher']);
-    Route::delete('group/{group}', 'destroy');
-    Route::delete('group/{group}/kick', 'kick')->middleware(['auth:sanctum', 'teacher']);
+    Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
+        Route::put('group/{group}', 'update');
+
+        Route::post('group', 'store');
+        Route::post('group/{group}/join', 'join');
+        Route::post('group/{group}/banner', 'putBanner');
+
+        Route::delete('group/{group}', 'destroy');
+        Route::delete('group/{group}/kick', 'kick');
+    });
 });
 
 Route::controller(PostController::class)->group(function () {
@@ -93,12 +99,12 @@ Route::controller(PostController::class)->group(function () {
     Route::get('posts', 'index')->middleware('auth:sanctum');
     Route::get('post/{post}', 'show')->middleware(['auth:sanctum', 'student']);
 
-    Route::post('post', 'storePublic');
-    Route::post('group/{group}/post', 'store');
-
-    Route::delete('post/{post}', 'destroy');
-
-    Route::put('post/{post}', 'update');
+    Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
+        Route::post('post', 'storePublic');
+        Route::post('group/{group}/post', 'store');
+        Route::delete('post/{post}', 'destroy');
+        Route::put('post/{post}', 'update');
+    });
 });
 
 Route::controller(AssignmentController::class)->group(function () {
@@ -106,48 +112,51 @@ Route::controller(AssignmentController::class)->group(function () {
     Route::get('assignments', 'index')->middleware(['auth:sanctum', 'student']);
     Route::get('assignment/{assignment}', 'show')->middleware(['auth:sanctum', 'student']);
 
-    Route::post('group/{group}/assignment', 'store');
-
-    Route::delete('assignment/{assignment}', 'destroy');
-
-    Route::put('assignment/{assignment}', 'update');
+    Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
+        Route::post('group/{group}/assignment', 'store');
+        Route::delete('assignment/{assignment}', 'destroy');
+        Route::put('assignment/{assignment}', 'update');
+    });
 });
 
 
 Route::controller(ResponseController::class)->group(function () {
 
-    Route::get('solution/{solution}', 'show');
+    Route::get('solution/{solution}', 'show')->middleware(['auth:sanctum', 'solution']);
 
     Route::post('assignment/{assignment}/response', 'store')->middleware(['auth:sanctum', 'student']);
 
-    Route::put('solution/{solution}', 'update');
-    Route::put('solution/{solution}/grade', 'grade');
+    Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
+        Route::put('solution/{solution}', 'update');
+        Route::put('solution/{solution}/grade', 'grade');
+        Route::delete('solution/{solution}', 'destroy');
+    });
 
-    Route::delete('solution/{solution}', 'destroy');
 });
 
 
 Route::controller(FileController::class)->group(function () {
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('assignment/file/{assignment_file}', 'showAssignment')->middleware(['student']);
+        Route::get('post/file/{post_file}', 'showPost');
+        Route::get('solution/file/{solution_file}', 'showSolution')->middleware(['solution']);
 
-    Route::get('assignment/file/{assignment_file}', 'showAssignment');
-    Route::get('post/file/{post_file}', 'showPost');
-    Route::get('solution/file/{solution_file}', 'showSolution');
+        Route::get('assignment/file/{assignment_file}/get', 'getAssignment')->middleware('student');
+        Route::get('post/file/{post_file}/get', 'getPost');
+        Route::get('solution/file/{solution_file}/get', 'getSolution');
 
-    Route::get('assignment/file/{assignment_file}/get', 'getAssignment');
-    Route::get('post/file/{post_file}/get', 'getPost');
-    Route::get('solution/file/{solution_file}/get', 'getSolution');
+        Route::get('assignment/file/{assignment_file}/download', 'downloadAssignment')->middleware('student');
+        Route::get('post/file/{post_file}/download', 'downloadPost');
+        Route::get('solution/file/{solution_file}/download', 'downloadSolution');
 
-    Route::get('assignment/file/{assignment_file}/download', 'downloadAssignment');
-    Route::get('post/file/{post_file}/download', 'downloadPost');
-    Route::get('solution/file/{solution_file}/download', 'downloadSolution');
+        Route::post('assignment/{assignment}/file', 'storeAssignment');
+        Route::post('post/{post}/file', 'storePost');
+        Route::post('solution/{solution}/file', 'storeSolution');
 
-    Route::post('assignment/{assignment}/file', 'storeAssignment');
-    Route::post('post/{post}/file', 'storePost');
-    Route::post('solution/{solution}/file', 'storeSolution');
-
-    Route::delete('assignment/file/{assignment_file}', 'destroyAssignment');
-    Route::delete('post/file/{post_file}', 'destroyPost');
-    Route::delete('solution/file/{solution_file}', 'destroySolution');
+        Route::delete('assignment/file/{assignment_file}', 'destroyAssignment');
+        Route::delete('post/file/{post_file}', 'destroyPost');
+        Route::delete('solution/file/{solution_file}', 'destroySolution');
+    });
 });
 
 Route::controller(LinkController::class)->group(function () {
@@ -188,6 +197,6 @@ Route::controller(CommentController::class)->group(function () {
 });
 
 
-Route::controller(EmailController::class)->group(function (){
+Route::controller(EmailController::class)->group(function () {
     Route::post('contact', 'contact');
 });

@@ -44,7 +44,7 @@ class TeacherController extends Controller
     {
         $solutions = Solution::all()->whereNull('note');
         $assignments = array_values(Assignment::all()->whereIn('id', $solutions->unique('assignment_id')->pluck('assignment_id'))->map(
-            function ($assignment) use($solutions){
+            function ($assignment) use ($solutions) {
                 $group = Group::find($assignment->group_id);
                 $assignment['file_links'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
                 $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
@@ -81,9 +81,15 @@ class TeacherController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Teacher $teacher)
+    public function show()
     {
-        //
+        $teacher = Teacher::all()->where('user_id', auth()->id())->firstOrFail();
+        return response()->json(
+            [
+                'teacher' => $teacher,
+                'user' => auth()->user()
+            ]
+        );
     }
 
     /**

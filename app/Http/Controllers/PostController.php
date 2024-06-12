@@ -55,10 +55,11 @@ class PostController extends Controller
 
         $post = $request->validate([
             'name' => ['required', 'string'],
-            'subject' => ['string'],
-            'description' => ['string'],
+            'subject' => ['string', 'nullable'],
+            'description' => ['string', 'nullable'],
             'group_id' => ['required', Rule::exists('groups', 'id')]
         ]);
+
         return $this->savePost($request, $post);
     }
 
@@ -89,7 +90,7 @@ class PostController extends Controller
         try {
             $post['group_name'] = Group::findOrFail($post->group_id)->name;
         } catch (ModelNotFoundException $e) {
-
+            $post['group_name'] = 'Public';
         }
 
         $post['groups'] = Group::all()->map(function ($group) {
@@ -146,21 +147,14 @@ class PostController extends Controller
         $post = Post::create($post);
 
         if ($request->has('links')) {
-            $controller = new LinkController();
-            $result = $controller->storePost($request, $post)->getData(true);
-
-            if (isset($result['error'])) {
-                return response()->json($result, 400);
-            }
+            $controller = new LinkController;
+            $post['links'] = $controller->store($request, 'post', $post->id, new Post_link())['links'];
         }
 
         if ($request->hasFile('files')) {
-            $controller = new FileController();
-            $result = $controller->storePost($request, $post)->getContent(true);
-
-            if (isset($result['error'])) {
-                return response()->json($result, 400);
-            }
+            $controller = new FileController;
+            $post['fileLinks'] = $controller->store($request, 'post', $post->id, new Post_file())['files'];
+            $post['files'] = $post['fileLinks'];
         }
 
         return response()->json(['message' => 'post created successfully', 'post' => $post]);
