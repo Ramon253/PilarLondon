@@ -16,9 +16,11 @@ class Student extends Model
         'birth_date',
         'user_id',
         'profile_photo'
-    ] ;
-    public function getGroups()
+    ];
+
+    public function getGroups( )
     {
+
         return self::query()
             ->select('groups.*')
             ->join('student_groups', 'students.id', '=', 'student_groups.student_id')

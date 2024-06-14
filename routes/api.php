@@ -69,7 +69,11 @@ Route::controller(StudentController::class)->group(function () {
 Route::controller(TeacherController::class)->group(function () {
     Route::get('teacher/dashboard', 'dashboard')->middleware(['auth:sanctum', 'teacher']);
     Route::get('teacher/profile', 'show')->middleware(['auth:sanctum', 'teacher']);
+
     Route::post('student/generate', 'generateStudent')->middleware(['auth:sanctum', 'teacher']);
+    Route::post('teacher/profile_picture', 'putProfileImage')->middleware(['auth:sanctum', 'teacher']);
+
+    Route::put('teacher', 'update')->middleware(['auth:sanctum', 'teacher']);
 });
 
 Route::controller(GroupController::class)->group(function () {
@@ -97,7 +101,7 @@ Route::controller(GroupController::class)->group(function () {
 Route::controller(PostController::class)->group(function () {
 
     Route::get('posts', 'index')->middleware('auth:sanctum');
-    Route::get('post/{post}', 'show')->middleware(['auth:sanctum', 'student']);
+    Route::get('post/{post}', 'show')->middleware(['auth:sanctum', 'post']);
 
     Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
         Route::post('post', 'storePublic');

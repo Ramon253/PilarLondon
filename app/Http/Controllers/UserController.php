@@ -85,10 +85,10 @@ class UserController extends Controller
     {
         try {
             $teacher = Teacher::all()->where('user_id', $user->id)->firstOrFail();
-            if ($teacher->profile_photo === null || !$teacher->profile_photo) {
-                return file_get_contents(public_path('assets/defaultProfile.png'));
+            if (Storage::has($teacher->profile_photo)) {
+                return Storage::get($teacher->profile_photo);
             }
-            return Storage::get($teacher->profilePic);
+            return file_get_contents(public_path('assets/defaultProfile.png'));
         } catch (ItemNotFoundException $e) {
         }
         try {
@@ -124,7 +124,7 @@ class UserController extends Controller
         $user['role'] = 'none';
         auth()->login($user);
 
-        return response()->json(['message' => 'user created successfully', 'user' => $user]);
+        return response()->json(['message' => 'user created successfully', 'user' => $this->getUserInfo($request)]);
     }
 
 

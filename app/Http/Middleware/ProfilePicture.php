@@ -24,6 +24,10 @@ class ProfilePicture
 
         $user = User::find(auth()->id());
         $target = $request->route('user');
+
+        if ($user->id === $target->id)
+            return $next($request);
+
         $role = $user->getRol();
 
         if ($role !== 'none')

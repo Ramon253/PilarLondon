@@ -10,10 +10,13 @@ use App\Models\Join_code;
 use App\Models\Solution;
 use App\Models\Student_group;
 use App\Models\Teacher;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
@@ -92,12 +95,37 @@ class TeacherController extends Controller
         );
     }
 
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Teacher $teacher)
+    public function update(Request $request)
     {
-        //
+        $formData = $request->validate([
+            'full_name' => 'string',
+            'surname' => 'string',
+        ]);
+        $request['teacher']->update($formData);
+        return response()->json(['success' => 'Profile updated successfully', 'teacher' => $request['teacher']]);
+    }
+
+    public function putProfileImage(Request $request)
+    {
+        $formData = $request->validate([
+            'profile_photo' => ['file', 'required']
+        ]);
+
+        $teacher = $request['teacher'];
+
+        if (Storage::has($teacher->profile_photo)) {
+            Storage::delete($teacher->profile_photo);
+        }
+
+        $path = $this->storePhoto($request);
+        $teacher->profile_photo = $path;
+        $teacher->save();
+
+        return \response()->json(['success' => 'Uploaded successfully', 'path' => $path]);
     }
 
     /**
@@ -106,5 +134,18 @@ class TeacherController extends Controller
     public function destroy(Teacher $teacher)
     {
         //
+    }
+
+    private function storePhoto(Request $request)
+    {
+        $file = $request->file('profile_photo');
+
+        $mimeType = $file->getClientMimeType();
+
+        if (!Str::contains($mimeType, 'image')) {
+            return response()->json(['error' => 'Invalid file, please send an image']);
+        }
+
+        return $file->store('users/' . auth()->id());
     }
 }

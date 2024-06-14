@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Post;
 use App\Http\Middleware\ProfilePicture;
 use App\Http\Middleware\Solution;
 use App\Http\Middleware\Student;
@@ -75,6 +76,7 @@ class Kernel extends HttpKernel
         'studentGroup' => studentGroup::class,
         'teacher' => Teacher::class,
         'profilePicture' => ProfilePicture::class,
-        'solution' => Solution::class
+        'solution' => Solution::class,
+        'post' => Post::class
     ];
 }
