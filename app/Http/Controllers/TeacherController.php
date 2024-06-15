@@ -117,9 +117,7 @@ class TeacherController extends Controller
 
         $teacher = $request['teacher'];
 
-        if (Storage::has($teacher->profile_photo)) {
-            Storage::delete($teacher->profile_photo);
-        }
+
 
         $path = $this->storePhoto($request);
         $teacher->profile_photo = $path;
