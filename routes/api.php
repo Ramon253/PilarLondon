@@ -203,4 +203,5 @@ Route::controller(CommentController::class)->group(function () {
 
 Route::controller(EmailController::class)->group(function () {
     Route::post('contact', 'contact');
+    Route::post('mail/student-code', 'studentCode')->middleware(['auth:sanctum', 'teacher']);
 });

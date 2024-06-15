@@ -24,4 +24,6 @@ class EmailController extends Controller
         Mail::to('pilarlondoncontact@gmail.com')->send(new Contact($mail));
         return response()->json(['success' => 'Mail successfully sent']);
     }
+
+    public function studentCode(){}
 }
