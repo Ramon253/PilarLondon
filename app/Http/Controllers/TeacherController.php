@@ -58,7 +58,13 @@ class TeacherController extends Controller
                 return $assignment;
             }
         )->toArray());
-        $marked = 100 - ($solutions->count() * 100 / Solution::all()->count());
+
+        $all =  Solution::all()->count();
+        if ($all !== 0) {
+            $marked = 100 - ($solutions->count() * 100 / $all);
+        } else
+            $marked = 0;
+
         return response()->json([
             'teacher' => $request['teacher'],
             'assignments' => $assignments,
