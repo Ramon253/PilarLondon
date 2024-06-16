@@ -72,7 +72,7 @@ class TeacherController extends Controller
         ]);
     }
 
-    public static function generateStudent(Request $request)
+    public static function generateStudent()
     {
         $code = '';
         do {

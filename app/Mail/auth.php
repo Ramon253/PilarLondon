@@ -19,7 +19,7 @@ class auth extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public int $verificationCode
+        public string $verificationCode
     ){}
 
     /**
