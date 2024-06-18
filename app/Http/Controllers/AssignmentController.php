@@ -17,10 +17,12 @@ use App\Models\Solution_file;
 use App\Models\Solution_link;
 use App\Models\Student_group;
 use App\Models\User;
+use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ItemNotFoundException;
@@ -54,7 +56,7 @@ class AssignmentController extends Controller
                         $assignment['resolved'] = false;
                     }
                     return $assignment;
-                });
+                })->sortByDesc('dead_line');
             return response()->json(['assignments' => array_values($assignments->toArray())]);
         }
         $assignments = array_values(Assignment::all()->map(function ($assignment) {
@@ -67,7 +69,7 @@ class AssignmentController extends Controller
             $assignment['submitted'] = $solutions->count();
             $assignment['members'] = Student_group::all()->where('group_id', $group->id)->count();
             return $assignment;
-        })->toArray());
+        })->sortByDesc('created_at')->toArray());
 
         return response()->json(
             [
@@ -100,15 +102,19 @@ class AssignmentController extends Controller
                         ->firstOrFail();
                 $solution['fileLinks'] = array_values(Solution_file::all()->where('solution_id', $solution->id)->toArray());
                 $solution['links'] = array_values(Solution_link::all()->where('solution_id', $solution->id)->toArray());
+                $dead_line = Carbon::create($assignment->dead_line);
+                $solution['onTime'] = $dead_line->diffInMinutes($solution->updated_at, false);
                 $assignment['solution'] = $solution;
             } catch (ModelNotFoundException|ItemNotFoundException $e) {
                 return response()->json($assignment);
             }
         } else {
             $assignment['solutions'] = array_values(Solution::all()->where('assignment_id', $assignment->id)->map(
-                function ($solution) {
+                function ($solution) use ($assignment) {
                     $student = Student::find($solution->student_id);
                     $solution['student_name'] = $student->full_name;
+                    $dead_line = Carbon::create($assignment->dead_line);
+                    $solution['onTime'] = $dead_line->diffInMinutes($solution->updated_at, false);
                     $solution['user_id'] = $student->user_id;
                     return $solution;
                 }

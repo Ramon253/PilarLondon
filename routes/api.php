@@ -39,12 +39,13 @@ Route::controller(UserController::class)->group(function () {
     Route::get('user/{user}/profile-picture', 'profilePic')->middleware(['auth:sanctum', 'profilePicture']);
     Route::get('isActivated', 'isActivated')->middleware('auth:sanctum');
 
+
     Route::post('user', 'store');
     Route::post('login', 'login');
     Route::post('login-token', 'login_token');
 
     Route::post('logout', 'logout');
-    Route::post('activate', 'activate')->middleware('auth:sanctum');
+    Route::post('activate', 'activate')->middleware('auth:sanctum', 'verified');
     Route::post('verify', 'verify')->middleware('auth:sanctum');
 });
 
@@ -80,6 +81,7 @@ Route::controller(GroupController::class)->group(function () {
     Route::get('groups', 'index');
     Route::get('group/{group}/banner', 'showBanner');
 
+    Route::post('group/{group}/wait-list', 'joinWaitList')->middleware(['auth:sanctum', 'verified']);
     Route::middleware(['auth:sanctum', 'student'])->group(function () {
         Route::get('group/{group}', 'show');
         Route::get('group/{group}/posts', 'showPosts');
@@ -203,5 +205,7 @@ Route::controller(CommentController::class)->group(function () {
 
 Route::controller(EmailController::class)->group(function () {
     Route::post('contact', 'contact');
+    Route::post('send/verify')->middleware('auth:sanctum');
     Route::post('mail/student-code', 'studentCode')->middleware(['auth:sanctum', 'teacher']);
+    Route::get('isVerified', 'isVerified' )->middleware(['auth:sanctum']);
 });

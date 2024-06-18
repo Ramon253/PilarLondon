@@ -5,16 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Wait_list extends Model
+class Email_verification extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'group_id',
-        'phone_number',
-        'places'
-    ];
-    protected $table = 'wait_list';
+    protected $table = 'email_verification';
 
+    protected $fillable = [
+        'token',
+        'user_id'
+    ];
 }

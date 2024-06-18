@@ -13,7 +13,7 @@ class Group extends Model
         'teacher_id',
         'name',
         'level',
-        'lessons_day',
+        'lesson_days',
         'lessons_time',
         'banner',
         'capacity'

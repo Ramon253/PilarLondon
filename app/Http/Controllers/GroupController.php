@@ -37,7 +37,7 @@ class GroupController extends Controller
             $groups = Group::all()->map(function (Group $group) {
                 $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
                 return $group;
-            });
+            })->sortByDesc('created_at');
             return response()->json($groups);
         }
         try {
@@ -49,15 +49,16 @@ class GroupController extends Controller
         }
         $role = $user->getRol();
         if ($role === 'teacher') {
-            return response()->json(array_values(Group::all()->toArray()));
+            return response()->json(array_values(Group::all()->sortByDesc('created_at')->toArray()));
         }
         if ($role === 'student') {
-            return response()->json(array_values(Student::all()->where('user_id', $user->id)->firstOrFail()->getGroups()->toArray()));
+            return response()->json(array_values(Student::all()->where('user_id', $user->id)->firstOrFail()->getGroups()->sortByDesc('created_at')->toArray()));
         }
         $groups = Group::all()->map(function (Group $group) {
             $group['studentNumber'] = Student_group::all()->where('group_id', $group->id)->count();
+            $group['inWaitlist'] = (bool) Wait_list::all()->where('user_id', Auth::id())->where('group_id', $group->id)->first() ;
             return $group;
-        });
+        })->sortByDesc('created_at');
 
         return response()->json($groups);
     }
@@ -168,7 +169,7 @@ class GroupController extends Controller
     public function joinWaitList(Request $request, Group $group)
     {
         $formData = $request->validate([
-            'places' => ['required', 'integer', 'unsigned'],
+            'places' => ['required', 'numeric', 'min:0'],
             'phone_number' => ['required', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
         ]);
         $formData['user_id'] = auth()->id();

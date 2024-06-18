@@ -1,6 +1,6 @@
 <html lang="es">
 <head>
-    <title>Código de Activación en Pilar London</title>
+    <title>Correo de contacto</title>
 </head>
 <body>
 <div style="padding: 1rem; background: #464450; color: whitesmoke; border-radius: 0.5rem; text-align: center">

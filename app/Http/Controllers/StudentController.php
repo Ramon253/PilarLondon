@@ -141,6 +141,7 @@ class StudentController extends Controller
             'full_name' => 'required',
             'surname' => 'required',
             'level' => 'required',
+            'phone_number' => 'numeric',
             'birth_date' => ['required', 'date'],
             'parent_id' => [Rule::exists('users', 'id')]
         ]);
@@ -183,6 +184,7 @@ class StudentController extends Controller
             'full_name' => 'string',
             'surname' => 'string',
             'level' => 'string',
+            'phone_number' => ['numeric', 'min:100000000', 'max:999999999'],
             'birth_date' => ['date'],
         ]);
         $request['student']->update($formData);

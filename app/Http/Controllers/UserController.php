@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Email_verification;
 use App\Models\Teacher;
 use App\Mail\auth as MailAuth;
 use App\Models\Group;
@@ -134,20 +135,17 @@ class UserController extends Controller
 
     public function verify(Request $request)
     {
-        $code = $request->validate(['code' => 'required'])['code'];
-
-        if (session()->missing('verificationCode')) {
-            return response()->json('error', 'There it is no login attempt in this session');
+        $token = $request->validate(['token' => ['required' ]])['token'];
+        $email_verification = Email_verification::all()->where('user_id', auth()->id())->where('token', $token)->first();
+        if ($email_verification){
+            $user = User::find(\auth()->id());
+            $user->email_verified_at = now();
+            $user->save();
+            $email_verification->delete();
+            return response()->json(['success'=>'Auth passed successfully']);
         }
-        if (session('verificationCode') !== (int)$code) {
-            return response()->json('error', 'Incorrect code');
-        }
 
-        $user = auth()->user();
-        $user->email_verified_at = now();
-        $user->save();
-
-        return response()->json('success', 'Auth passed successfully');
+        return response()->json('Incorrect code', 403);
     }
 
 

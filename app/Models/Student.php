@@ -15,6 +15,7 @@ class Student extends Model
         'level',
         'birth_date',
         'user_id',
+        'phone_number',
         'profile_photo'
     ];
 
