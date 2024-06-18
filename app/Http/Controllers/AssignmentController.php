@@ -62,7 +62,7 @@ class AssignmentController extends Controller
         $assignments = array_values(Assignment::all()->map(function ($assignment) {
             $group = Group::find($assignment->group_id);
             $assignment['group_name'] = $group->name;
-            $assignment['files'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
+            $assignment['fileLinks'] = array_values(Assignment_file::all()->where('assignment_id', $assignment->id)->toArray());
             $assignment['links'] = array_values(Assignment_link::all()->where('assignment_id', $assignment->id)->toArray());
             $solutions = Solution::all()->where('assignment_id', $assignment->id);
             $assignment['marked'] = $solutions->whereNotNull('note')->count();
